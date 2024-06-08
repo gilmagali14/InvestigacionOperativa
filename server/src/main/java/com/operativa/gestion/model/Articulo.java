@@ -25,10 +25,10 @@ public class Articulo {
     private LocalDateTime bajaArticulo;
 
     @CreationTimestamp
-    private LocalDateTime createdAt;
+    private LocalDateTime fechaAlta;
 
-    @CreationTimestamp
-    private LocalDateTime updatedAt;
+    @OneToMany(mappedBy = "demanda")
+    private List<Demanda> demanda;
 
     @ManyToOne
     @JoinColumn(name = "codTipoArticulo")
@@ -67,21 +67,7 @@ public class Articulo {
         this.descripcion = descripcion;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 
     public void setId(Long id) {
         this.codArticulo = id;

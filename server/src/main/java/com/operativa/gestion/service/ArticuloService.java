@@ -1,6 +1,7 @@
 package com.operativa.gestion.service;
 
 import com.operativa.gestion.dto.ArticuloDTO;
+import com.operativa.gestion.model.Demanda;
 import com.operativa.gestion.model.TipoArticulo;
 import com.operativa.gestion.model.repository.ArticuloRepository;
 import com.operativa.gestion.model.Articulo;
@@ -15,10 +16,13 @@ public class ArticuloService {
 
     private final ArticuloRepository articuloRepository;
     private final TipoArticuloRespository tipoArticuloRespository;
+    private final DemandaService demandaService;
 
-    public ArticuloService(ArticuloRepository articuloRepository, TipoArticuloRespository tipoArticuloRespository) {
+
+    public ArticuloService(ArticuloRepository articuloRepository, TipoArticuloRespository tipoArticuloRespository, DemandaService demandaService) {
         this.articuloRepository = articuloRepository;
         this.tipoArticuloRespository = tipoArticuloRespository;
+        this.demandaService = demandaService;
     }
 
     public void crearArticulo(ArticuloDTO articuloDTO) {
