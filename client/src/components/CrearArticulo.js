@@ -24,6 +24,13 @@ function CrearArticulo() {
         }
     };
 
+    fetchTiposArticulo();
+  }, []);
+
+  const handleChangeTipoArticulo = (event) => {
+    setSelectedTipoArticulo(event.target.value);
+  };
+
     return (
         <div style={{ backgroundColor: '#BFC9CA', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <div className="container p-5 rounded" style={{ backgroundColor: 'white' }}>
@@ -47,9 +54,9 @@ function CrearArticulo() {
             {loading && <p className="mt-3">Enviando datos...</p>}
             {error && <p className="mt-3 text-danger">Error: {error}</p>}
         </div>
-   
+
     </div>
-    
+
 );
 }
 

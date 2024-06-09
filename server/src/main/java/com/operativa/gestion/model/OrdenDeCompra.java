@@ -21,12 +21,10 @@ public class OrdenDeCompra {
 
     @CreationTimestamp
     private LocalDateTime fechaActualizacion;
+
     @ManyToMany
-    @JoinTable(
-            name = "orden_articulo",
-            joinColumns = @JoinColumn(name = "idOrdenDeCompra"),
-            inverseJoinColumns = @JoinColumn(name = "articulo_id")
-    )
+    @JoinTable(name = "orden_articulo", joinColumns = @JoinColumn(name = "orden_id"),
+            inverseJoinColumns = @JoinColumn(name = "articulo_id"))
     private List<Articulo> articulos;
 
     public Long getIdOrdenDeCompra() {

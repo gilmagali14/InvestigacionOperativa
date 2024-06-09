@@ -4,6 +4,7 @@ import com.operativa.gestion.dto.ArticuloDTO;
 import com.operativa.gestion.model.Articulo;
 import com.operativa.gestion.model.TipoArticulo;
 import com.operativa.gestion.service.ArticuloService;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -29,7 +30,7 @@ public class ArticuloController {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @DeleteMapping("/delete/articulo/{id}")
-    public ResponseEntity<String> borrarArticulo(@PathVariable("id") long idArticulo) {
+    public ResponseEntity<String> borrarArticulo(@PathVariable("id") long idArticulo) throws BadRequestException {
         articuloService.borrarArticulo(idArticulo);
         return ResponseEntity.status(HttpStatus.OK).body("Articulo borrado correctamente: " + idArticulo);
     }

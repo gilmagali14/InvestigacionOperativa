@@ -13,13 +13,9 @@ import java.util.Optional;
 @Service
 public class OrdenDeCompraService {
 
-    private final ArticuloService articuloService;
-    private final ArticuloRepository articuloRepository;
     private final OrdenDeCompraRespository ordenDeCompraRespository;
 
-    public OrdenDeCompraService(ArticuloService articuloService, ArticuloRepository articuloRepository, OrdenDeCompraRespository ordenDeCompraRespository) {
-        this.articuloService = articuloService;
-        this.articuloRepository = articuloRepository;
+    public OrdenDeCompraService(OrdenDeCompraRespository ordenDeCompraRespository) {
         this.ordenDeCompraRespository = ordenDeCompraRespository;
     }
 

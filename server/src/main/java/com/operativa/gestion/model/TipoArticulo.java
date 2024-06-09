@@ -16,9 +16,9 @@ public class TipoArticulo {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long codTipoArticulo;
 
-    private String nombreTipoArticulo;
+    private String nombre;
 
-    private LocalDateTime fechaBajaTipoArticulo;
+    private LocalDateTime fechaBaja;
 
     @OneToMany(mappedBy = "tipoArticulo")
     private List<Articulo> articulos;
@@ -31,19 +31,27 @@ public class TipoArticulo {
         this.codTipoArticulo = codTipoArticulo;
     }
 
-    public String getNombreTipoArticulo() {
-        return nombreTipoArticulo;
+    public String getNombre() {
+        return nombre;
     }
 
-    public void setNombreTipoArticulo(String nombreTipoArticulo) {
-        this.nombreTipoArticulo = nombreTipoArticulo;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
-    public LocalDateTime getFechaBajaTipoArticulo() {
-        return fechaBajaTipoArticulo;
+    public LocalDateTime getFechaBaja() {
+        return fechaBaja;
     }
 
-    public void setFechaBajaTipoArticulo(LocalDateTime fechaBajaTipoArticulo) {
-        this.fechaBajaTipoArticulo = fechaBajaTipoArticulo;
+    public void setFechaBaja(LocalDateTime fechaBaja) {
+        this.fechaBaja = fechaBaja;
+    }
+
+    public List<Articulo> getArticulos() {
+        return articulos;
+    }
+
+    public void setArticulos(List<Articulo> articulos) {
+        this.articulos = articulos;
     }
 }

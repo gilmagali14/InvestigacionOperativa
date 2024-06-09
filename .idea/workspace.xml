@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="46ffdfa0-97c2-4362-adc6-9abc1eb5d91a" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/client/src/components/CrearArticulo.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/CrearArticulo.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/src/main/java/com/operativa/gestion/GestionApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/src/main/java/com/operativa/gestion/controller/ArticuloController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/src/main/java/com/operativa/gestion/model/Articulo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/src/main/java/com/operativa/gestion/model/ArticuloRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/src/main/java/com/operativa/gestion/service/ArticuloService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/src/main/resources/schema.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/src/test/java/com/operativa/gestion/GestionApplicationTests.java" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="2h7KMstydfeFh2D9vM8NRfVZJCV" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "SDKs",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="InvestigacionOperativa" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="InvestigacionOperativa" />
+      <option name="filePath" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9f38398b9061-39b83d9b5494-intellij.indexing.shared.core-IU-241.15989.150" />
+        <option value="bundled-js-predefined-1d06a55b98c1-91d5c284f522-JavaScript-IU-241.15989.150" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="46ffdfa0-97c2-4362-adc6-9abc1eb5d91a" name="Changes" comment="" />
+      <created>1716939632628</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1716939632628</updated>
+      <workItem from="1716939633958" duration="284000" />
+      <workItem from="1717196628939" duration="175000" />
+      <workItem from="1717196825858" duration="305000" />
+      <workItem from="1717197180616" duration="164000" />
+      <workItem from="1717952943734" duration="74000" />
+      <workItem from="1717953033817" duration="359000" />
+      <workItem from="1717973842970" duration="159000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

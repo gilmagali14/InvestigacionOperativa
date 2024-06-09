@@ -6,7 +6,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 
 import java.util.List;
-/*
 
 @Entity
 public class Inventario {
@@ -34,4 +33,3 @@ public class Inventario {
         return id;
     }
 }
-*/
