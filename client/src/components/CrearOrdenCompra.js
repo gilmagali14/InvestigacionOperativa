@@ -3,13 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const CrearArticulo = () => {
+const CrearOrdenCompra = () => {
 const navigate = useNavigate();
 const [nombre, setNombre] = useState('');
 const [descripcion, setDescripcion] = useState('');
 const [tipoArticulos, setTipoArticulos] = useState([]);
 const [selectedTipoArticulo, setSelectedTipoArticulo] = useState('');
-const [selectedProveedor, setSelectedProveedor] = useState('');
 
 useEffect(() => {
     obtenerTipoArticulos();
@@ -31,7 +30,6 @@ const handleSubmit = async (e) => {
             nombre,
             descripcion,
             tipoArticuloId: selectedTipoArticulo,
-            proveedor: selectedProveedor
         });
         navigate('/articulos');
         console.log(response.data);
@@ -89,4 +87,4 @@ return (
   );
 };
 
-export default CrearArticulo;
+export default CrearOrdenCompra;

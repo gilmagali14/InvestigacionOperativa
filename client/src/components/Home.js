@@ -9,7 +9,10 @@ function Home() {
             <nav className="mt-3">
                 <ul className="nav">
                     <li className="nav-item">
-                        <Link to="/crearArticulo" className="nav-link">Crear Artículo</Link>
+                        <Link to="/crear/articulo" className="nav-link">Crear Artículo</Link>
+                    </li>
+                    <li className="nav-item">
+                        <Link to="/crear/orden-de-compra" className="nav-link">Crear Orden de Compra</Link>
                     </li>
                     <li className="nav-item">
                         <Link to="/articulos" className="nav-link">Ver Artículos</Link>

@@ -20,32 +20,46 @@ public class Articulo {
 
     private String descripcion;
 
-    @Timestamp
-    @Nullable
-    private LocalDateTime bajaArticulo;
+    private Long numeroLote;
+
+    private LocalDateTime fechaBaja;
 
     @CreationTimestamp
     private LocalDateTime fechaAlta;
 
     @ManyToOne
-    @JoinColumn(name = "codTipoArticulo")
+    @JoinColumn(name = "codTipoArticulo", nullable = false)
     private TipoArticulo tipoArticulo;
+
+    @ManyToOne
+    @JoinColumn(name = "codProveedor", nullable = false)
+    private Proveedor proveedor;
 
     @ManyToOne
     @JoinColumn(name = "codInventario")
     private Inventario inventario;
 
-    @ManyToMany(mappedBy = "articulos")
-    private List<OrdenDeCompra> ordenesDeCompra;
+    @OneToMany(mappedBy = "articulo", cascade = CascadeType.ALL)
+    private List<OrdenCompraDetalle> ordenesCompraDetalle;
 
-    public Articulo(String nombre, String descripcion, TipoArticulo tipoArticulo) {
+    public Articulo(String nombre, String descripcion, TipoArticulo tipoArticulo, Proveedor proveedor,
+                    Long numeroLote) {
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.tipoArticulo = tipoArticulo;
+        this.proveedor = proveedor;
+        this.numeroLote = numeroLote;
     }
 
     public Articulo() {
+    }
 
+    public Long getCodArticulo() {
+        return codArticulo;
+    }
+
+    public void setCodArticulo(Long codArticulo) {
+        this.codArticulo = codArticulo;
     }
 
     public String getNombre() {
@@ -64,11 +78,53 @@ public class Articulo {
         this.descripcion = descripcion;
     }
 
-    public void setId(Long id) {
-        this.codArticulo = id;
+    public Long getNumeroLote() {
+        return numeroLote;
     }
 
-    public Long getId() {
-        return codArticulo;
+    public void setNumeroLote(Long numeroLote) {
+        this.numeroLote = numeroLote;
     }
+
+    public LocalDateTime getFechaAlta() {
+        return fechaAlta;
+    }
+
+    public void setFechaAlta(LocalDateTime fechaAlta) {
+        this.fechaAlta = fechaAlta;
+    }
+
+    public void setTipoArticulo(TipoArticulo tipoArticulo) {
+        this.tipoArticulo = tipoArticulo;
+    }
+
+    public TipoArticulo getTipoArticulo() {
+        return tipoArticulo;
+    }
+    public Proveedor getProveedor() {
+        return proveedor;
+    }
+
+    public void setProveedor(Proveedor proveedor) {
+        this.proveedor = proveedor;
+    }
+
+    public void setInventario(Inventario inventario) {
+        this.inventario = inventario;
+    }
+
+    public void setOrdenesCompraDetalle(List<OrdenCompraDetalle> ordenesCompraDetalle) {
+        this.ordenesCompraDetalle = ordenesCompraDetalle;
+    }
+
+    @Nullable
+    public LocalDateTime getFechaBaja() {
+        return fechaBaja;
+    }
+
+    public void setFechaBaja(@Nullable LocalDateTime fechaBaja) {
+        this.fechaBaja = fechaBaja;
+    }
+
+
 }

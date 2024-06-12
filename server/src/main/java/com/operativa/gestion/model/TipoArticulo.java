@@ -47,10 +47,6 @@ public class TipoArticulo {
         this.fechaBaja = fechaBaja;
     }
 
-    public List<Articulo> getArticulos() {
-        return articulos;
-    }
-
     public void setArticulos(List<Articulo> articulos) {
         this.articulos = articulos;
     }

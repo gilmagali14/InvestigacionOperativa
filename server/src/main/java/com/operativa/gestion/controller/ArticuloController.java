@@ -29,21 +29,19 @@ public class ArticuloController {
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
-    @DeleteMapping("/delete/articulo/{id}")
-    public ResponseEntity<String> borrarArticulo(@PathVariable("id") long idArticulo) throws BadRequestException {
-        articuloService.borrarArticulo(idArticulo);
-        return ResponseEntity.status(HttpStatus.OK).body("Articulo borrado correctamente: " + idArticulo);
+    @DeleteMapping("/baja/articulo/{id}")
+    public ResponseEntity<String> borrarArticulo(@PathVariable("id") long idArticulo) {
+        try {
+            articuloService.borrarArticulo(idArticulo);
+            return ResponseEntity.ok("Artículo borrado correctamente");
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/articulos")
     public ResponseEntity<List<Articulo>> obtenerArticulos() {
         return ResponseEntity.status(HttpStatus.OK).body(articuloService.obtenerArticulos());
-    }
-
-    @CrossOrigin(origins = "http://localhost:3000")
-    @GetMapping("/tipo_articulos")
-    public ResponseEntity<List<TipoArticulo>> obtenerTipoArticulos() {
-        return ResponseEntity.status(HttpStatus.OK).body(articuloService.obtenerTipoArticulos());
     }
 }
