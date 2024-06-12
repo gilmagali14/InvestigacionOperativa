@@ -1,7 +1,6 @@
 package com.operativa.gestion.model;
 
 import jakarta.persistence.*;
-import jdk.jfr.Timestamp;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -22,10 +21,8 @@ public class OrdenDeCompra {
     @CreationTimestamp
     private LocalDateTime fechaActualizacion;
 
-    @ManyToMany
-    @JoinTable(name = "orden_articulo", joinColumns = @JoinColumn(name = "orden_id"),
-            inverseJoinColumns = @JoinColumn(name = "articulo_id"))
-    private List<Articulo> articulos;
+    @OneToMany(mappedBy = "ordenDeCompra", cascade = CascadeType.ALL)
+    private List<OrdenCompraDetalle> ordenesCompraDetalle;
 
     public Long getIdOrdenDeCompra() {
         return idOrdenDeCompra;
@@ -57,13 +54,5 @@ public class OrdenDeCompra {
 
     public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
         this.fechaActualizacion = fechaActualizacion;
-    }
-
-    public List<Articulo> getArticulos() {
-        return articulos;
-    }
-
-    public void setArticulos(List<Articulo> articulos) {
-        this.articulos = articulos;
     }
 }
