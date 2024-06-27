@@ -35,4 +35,12 @@ public class Proveedor {
     public void setArticulos(List<Articulo> articulos) {
         this.articulos = articulos;
     }
+
+    public Proveedor (Long codProveedor, String nombre) {
+        this.codProveedor = codProveedor;
+        this.nombre = nombre;
+
+    }
+
+    public Proveedor() {};
 }

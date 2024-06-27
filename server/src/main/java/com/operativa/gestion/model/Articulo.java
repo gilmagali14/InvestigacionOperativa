@@ -20,6 +20,8 @@ public class Articulo {
 
     private String descripcion;
 
+    private double precio;
+
     private Long numeroLote;
 
     private LocalDateTime fechaBaja;
@@ -42,10 +44,11 @@ public class Articulo {
     @OneToMany(mappedBy = "articulo", cascade = CascadeType.ALL)
     private List<OrdenCompraDetalle> ordenesCompraDetalle;
 
-    public Articulo(String nombre, String descripcion, TipoArticulo tipoArticulo, Proveedor proveedor,
+    public Articulo(String nombre, String descripcion, double precio, TipoArticulo tipoArticulo, Proveedor proveedor,
                     Long numeroLote) {
         this.nombre = nombre;
         this.descripcion = descripcion;
+        this.precio = precio;
         this.tipoArticulo = tipoArticulo;
         this.proveedor = proveedor;
         this.numeroLote = numeroLote;
@@ -78,6 +81,10 @@ public class Articulo {
         this.descripcion = descripcion;
     }
 
+    public double getPrecio() { return precio;}
+
+    public void setPrecio(double precio) { this.precio = precio;}
+
     public Long getNumeroLote() {
         return numeroLote;
     }
@@ -101,6 +108,7 @@ public class Articulo {
     public TipoArticulo getTipoArticulo() {
         return tipoArticulo;
     }
+
     public Proveedor getProveedor() {
         return proveedor;
     }

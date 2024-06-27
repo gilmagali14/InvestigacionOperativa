@@ -24,6 +24,10 @@ public class OrdenDeCompra {
     @OneToMany(mappedBy = "ordenDeCompra", cascade = CascadeType.ALL)
     private List<OrdenCompraDetalle> ordenesCompraDetalle;
 
+    @ManyToOne
+    @JoinColumn(name = "codEstadoOrdenDeCompra", nullable = false)
+    private EstadoOrdenDeCompra estadoOrdenDeCompra;
+
     public Long getIdOrdenDeCompra() {
         return idOrdenDeCompra;
     }
@@ -51,6 +55,10 @@ public class OrdenDeCompra {
     public LocalDateTime getFechaActualizacion() {
         return fechaActualizacion;
     }
+
+    public EstadoOrdenDeCompra getEstadoOrdenDeCompra() {return estadoOrdenDeCompra;}
+
+    public void setEstadoOrdenDeCompra(EstadoOrdenDeCompra estadoOrdenDeCompra) {this.estadoOrdenDeCompra = estadoOrdenDeCompra;}
 
     public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
         this.fechaActualizacion = fechaActualizacion;
