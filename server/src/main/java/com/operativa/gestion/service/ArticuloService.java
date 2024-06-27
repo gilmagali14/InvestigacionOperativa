@@ -2,10 +2,10 @@ package com.operativa.gestion.service;
 
 import com.operativa.gestion.dto.ArticuloDTO;
 import com.operativa.gestion.model.OrdenDeCompra;
-import com.operativa.gestion.model.repository.ArticuloRepository;
+import com.operativa.gestion.model.Proveedor;
+import com.operativa.gestion.model.TipoArticulo;
+import com.operativa.gestion.model.repository.*;
 import com.operativa.gestion.model.Articulo;
-import com.operativa.gestion.model.repository.OrdenCompraDetalleRepository;
-import com.operativa.gestion.model.repository.OrdenDeCompraRespository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.apache.coyote.BadRequestException;
@@ -22,23 +22,32 @@ public class ArticuloService {
     private EntityManager entityManager;
 
     private final ArticuloRepository articuloRepository;
+
+    private final TipoArticuloRespository tipoArticuloRespository;
+    private final ProveedorRepository proveedorRepository;
     private final OrdenDeCompraRespository ordenDeCompraRespository;
     private final OrdenCompraDetalleRepository ordenCompraDetalleRepository;
 
-    public ArticuloService(ArticuloRepository articuloRepository, OrdenDeCompraRespository ordenDeCompraRespository,
+    public ArticuloService(ArticuloRepository articuloRepository, TipoArticuloRespository tipoArticuloRespository, ProveedorRepository proveedorRepository, OrdenDeCompraRespository ordenDeCompraRespository,
                            OrdenCompraDetalleRepository ordenCompraDetalleRepository) {
         this.articuloRepository = articuloRepository;
+        this.tipoArticuloRespository = tipoArticuloRespository;
+        this.proveedorRepository = proveedorRepository;
         this.ordenDeCompraRespository = ordenDeCompraRespository;
         this.ordenCompraDetalleRepository = ordenCompraDetalleRepository;
     }
 
-    public void crearArticulo(ArticuloDTO articuloDTO) {
+    public void crearArticulo(ArticuloDTO articuloDTO) throws BadRequestException {
+        Optional<TipoArticulo> tipoArticulo = tipoArticuloRespository.findByNombre(articuloDTO.getNombreTipoArticulo());
+        Optional<Proveedor> proveedor = proveedorRepository.findByNombre(articuloDTO.getNombreProveedor());
 
-        Articulo articulo = new Articulo(articuloDTO.getNombre(),
-                                         articuloDTO.getDescripcion(),
-                                         articuloDTO.getTipoArticulo(),
-                                         articuloDTO.getProveedor(),
-                                         articuloDTO.getNumeroLote());
+        if (tipoArticulo.isEmpty() || proveedor.isEmpty()) {
+            throw new BadRequestException("El tipoArticulo o proveedor no existe");
+        }
+
+        Articulo articulo = new Articulo(articuloDTO.getNombre(), articuloDTO.getDescripcion(),
+                                         articuloDTO.getPrecio(), tipoArticulo.get(), proveedor.get(),
+                articuloDTO.getCostoAlmacenamiento());
         articuloRepository.save(articulo);
     }
 

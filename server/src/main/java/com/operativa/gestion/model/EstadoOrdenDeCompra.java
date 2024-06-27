@@ -15,12 +15,18 @@ public class EstadoOrdenDeCompra {
     private String nombreEstadoOrdenDeCompra;
 
     @CreationTimestamp
-    private LocalDateTime fechaBajaEstadoOrdenDeCompra;
+    private LocalDateTime fechaActualizacionEstadoOrdenDeCompra;
 
     @OneToMany(mappedBy = "estadoOrdenDeCompra")
     private List<OrdenDeCompra> ordenDeCompras;
 
-    public Long getCodEstadoOrdenDeCompra() {return codEstadoOrdenDeCompra;}
+    public EstadoOrdenDeCompra() {
+
+    }
+
+    public Long getCodEstadoOrdenDeCompra() {
+        return codEstadoOrdenDeCompra;
+    }
 
     public void setCodEstadoOrdenDeCompra(Long codEstadoOrdenDeCompra) {this.codEstadoOrdenDeCompra = codEstadoOrdenDeCompra;}
 
@@ -28,9 +34,13 @@ public class EstadoOrdenDeCompra {
 
     public void setNombreEstadoOrdenDeCompra(String nombreEstadoOrdenDeCompra) {this.nombreEstadoOrdenDeCompra = nombreEstadoOrdenDeCompra;}
 
-    public LocalDateTime getFechaBajaEstadoOrdenDeCompra() {return fechaBajaEstadoOrdenDeCompra;}
+    public LocalDateTime getFechaBajaEstadoOrdenDeCompra() {return fechaActualizacionEstadoOrdenDeCompra;}
 
-    public void setFechaBajaEstadoOrdenDeCompra(LocalDateTime fechaBajaEstadoOrdenDeCompra) {this.fechaBajaEstadoOrdenDeCompra = fechaBajaEstadoOrdenDeCompra;}
+    public void setFechaBajaEstadoOrdenDeCompra(LocalDateTime fechaBajaEstadoOrdenDeCompra) {this.fechaActualizacionEstadoOrdenDeCompra = fechaBajaEstadoOrdenDeCompra;}
 
     public void setOrdenDeCompras(List<OrdenDeCompra> ordenDeCompras) {this.ordenDeCompras = ordenDeCompras;}
+
+    public EstadoOrdenDeCompra(String nombreEstadoOrdenDeCompra) {
+        this.nombreEstadoOrdenDeCompra = nombreEstadoOrdenDeCompra;
+    }
 }

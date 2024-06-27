@@ -16,8 +16,6 @@ public class OrdenDeCompra {
     @CreationTimestamp
     private LocalDateTime fechaCreacion;
 
-    private String estado;
-
     @CreationTimestamp
     private LocalDateTime fechaActualizacion;
 
@@ -28,12 +26,12 @@ public class OrdenDeCompra {
     @JoinColumn(name = "codEstadoOrdenDeCompra", nullable = false)
     private EstadoOrdenDeCompra estadoOrdenDeCompra;
 
-    public Long getIdOrdenDeCompra() {
-        return idOrdenDeCompra;
+    public List<OrdenCompraDetalle> getOrdenesCompraDetalle() {
+        return ordenesCompraDetalle;
     }
 
-    public void setIdOrdenDeCompra(Long idOrdenDeCompra) {
-        this.idOrdenDeCompra = idOrdenDeCompra;
+    public void setOrdenesCompraDetalle(List<OrdenCompraDetalle> ordenesCompraDetalle) {
+        this.ordenesCompraDetalle = ordenesCompraDetalle;
     }
 
     public LocalDateTime getFechaCreacion() {
@@ -44,12 +42,8 @@ public class OrdenDeCompra {
         this.fechaCreacion = fechaCreacion;
     }
 
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
+    public Long getIdOrdenDeCompra() {
+        return idOrdenDeCompra;
     }
 
     public LocalDateTime getFechaActualizacion() {

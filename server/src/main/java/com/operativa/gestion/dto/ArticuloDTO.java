@@ -1,8 +1,8 @@
 package com.operativa.gestion.dto;
 
-import com.operativa.gestion.model.Proveedor;
-import com.operativa.gestion.model.TipoArticulo;
 import jakarta.annotation.Nonnull;
+
+import java.math.BigDecimal;
 
 public class ArticuloDTO {
 
@@ -11,13 +11,49 @@ public class ArticuloDTO {
     private String descripcion;
 
     @Nonnull
-    private Long numeroLote;
+    private String nombreTipoArticulo;
 
     @Nonnull
-    private TipoArticulo tipoArticulo;
+    private String nombreProveedor;
 
     @Nonnull
-    private Proveedor proveedor;
+    private BigDecimal precio;
+
+    private BigDecimal costoAlmacenamiento;
+
+    public BigDecimal getCostoAlmacenamiento() {
+        return costoAlmacenamiento;
+    }
+
+    public void setCostoAlmacenamiento(BigDecimal costoAlmacenamiento) {
+        this.costoAlmacenamiento = costoAlmacenamiento;
+    }
+
+    @Nonnull
+    public BigDecimal getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(@Nonnull BigDecimal precio) {
+        this.precio = precio;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    @Nonnull
+    public String getNombreTipoArticulo() {
+        return nombreTipoArticulo;
+    }
+
+    public void setNombreTipoArticulo(@Nonnull String nombreTipoArticulo) {
+        this.nombreTipoArticulo = nombreTipoArticulo;
+    }
 
     public String getNombre() {
         return nombre;
@@ -27,15 +63,22 @@ public class ArticuloDTO {
         return descripcion;
     }
 
-    public TipoArticulo getTipoArticulo() {
-        return tipoArticulo;
+
+    @Nonnull
+    public String getNombreProveedor() {
+        return nombreProveedor;
     }
 
-    public Long getNumeroLote() {
-        return numeroLote;
+    public void setNombreProveedor(@Nonnull String nombreProveedor) {
+        this.nombreProveedor = nombreProveedor;
     }
 
-    public Proveedor getProveedor() {
-        return proveedor;
+    public ArticuloDTO(@Nonnull BigDecimal precio, @Nonnull String nombreProveedor, @Nonnull String nombreTipoArticulo,
+                       String descripcion, String nombre) {
+        this.precio = precio;
+        this.nombreProveedor = nombreProveedor;
+        this.nombreTipoArticulo = nombreTipoArticulo;
+        this.descripcion = descripcion;
+        this.nombre = nombre;
     }
 }

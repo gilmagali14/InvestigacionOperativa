@@ -23,7 +23,7 @@ public class ArticuloController {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/create/articulo")
-    public ResponseEntity<String> crearArticulo(@RequestBody ArticuloDTO articulo) {
+    public ResponseEntity<String> crearArticulo(@RequestBody ArticuloDTO articulo) throws BadRequestException {
         articuloService.crearArticulo(articulo);
         return ResponseEntity.status(HttpStatus.CREATED).body("Articulo creado correctamente");
     }

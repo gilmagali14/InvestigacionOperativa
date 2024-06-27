@@ -2,26 +2,36 @@ package com.operativa.gestion.model;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
 public class Proveedor {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private Long codProveedor;
-
     private String nombre;
 
     @OneToMany(mappedBy = "proveedor")
     private List<Articulo> articulos;
 
-    public Long getCodProveedor() {
-        return codProveedor;
+    private BigDecimal costoPedido;
+
+    private Long tiempoDemora;
+
+    public BigDecimal getCostoPedido() {
+        return costoPedido;
     }
 
-    public void setCodProveedor(Long codProveedor) {
-        this.codProveedor = codProveedor;
+    public void setCostoPedido(BigDecimal costoPedido) {
+        this.costoPedido = costoPedido;
+    }
+
+    public Long getTiempoDemora() {
+        return tiempoDemora;
+    }
+
+    public void setTiempoDemora(Long tiempoDemora) {
+        this.tiempoDemora = tiempoDemora;
     }
 
     public String getNombre() {
@@ -36,11 +46,12 @@ public class Proveedor {
         this.articulos = articulos;
     }
 
-    public Proveedor (Long codProveedor, String nombre) {
-        this.codProveedor = codProveedor;
+    public Proveedor (String nombre) {
         this.nombre = nombre;
 
     }
 
-    public Proveedor() {};
+    public Proveedor() {
+
+    }
 }

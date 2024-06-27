@@ -13,23 +13,12 @@ import java.util.List;
 public class TipoArticulo {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private Long codTipoArticulo;
-
     private String nombre;
 
     private LocalDateTime fechaBaja;
 
     @OneToMany(mappedBy = "tipoArticulo")
     private List<Articulo> articulos;
-
-    public Long getCodTipoArticulo() {
-        return codTipoArticulo;
-    }
-
-    public void setCodTipoArticulo(Long codTipoArticulo) {
-        this.codTipoArticulo = codTipoArticulo;
-    }
 
     public String getNombre() {
         return nombre;

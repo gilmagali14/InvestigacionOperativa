@@ -1,33 +1,34 @@
 package com.operativa.gestion.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 public class Venta {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long codVenta;
 
-    private LocalDateTime fechaVenta;
-
-    private double montoTotal;
+    private BigDecimal montoTotal;
 
     public Long getCodVenta() {return codVenta;}
 
     public void setCodVenta(Long codVenta) {this.codVenta = codVenta;}
 
-    public LocalDateTime getFechaVenta() {return fechaVenta;}
+    public BigDecimal getMontoTotal() {
+        return montoTotal;
+    }
 
-    public void setFechaVenta(LocalDateTime fechaVenta) {this.fechaVenta = fechaVenta;}
+    public void setMontoTotal(BigDecimal montoTotal) {
+        this.montoTotal = montoTotal;
+    }
 
-    public Venta (Long codVenta, LocalDateTime fechaVenta) {
-        this.codVenta = codVenta;
-        this.fechaVenta = fechaVenta;
+    public Venta(BigDecimal montoTotal) {
+        this.montoTotal = montoTotal;
     }
 
     public Venta() {

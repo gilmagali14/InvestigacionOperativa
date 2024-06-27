@@ -7,7 +7,6 @@ import java.util.Map;
 
 public class OrdenDeCompraDTO {
 
-    private OrdenDeCompra ordenDeCompra;
     private List<ArticuloOrdenCompraDTO> articulos;
 
     public List<ArticuloOrdenCompraDTO> getArticulos() {
@@ -16,13 +15,5 @@ public class OrdenDeCompraDTO {
 
     public void setArticulos(List<ArticuloOrdenCompraDTO> articulos) {
         this.articulos = articulos;
-    }
-
-    public void setOrdenDeCompra(OrdenDeCompra ordenDeCompra) {
-        this.ordenDeCompra = ordenDeCompra;
-    }
-
-    public OrdenDeCompra getOrdenDeCompra() {
-        return ordenDeCompra;
     }
 }

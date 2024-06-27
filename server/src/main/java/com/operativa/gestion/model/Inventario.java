@@ -3,9 +3,6 @@ package com.operativa.gestion.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-
-import java.util.List;
 
 @Entity
 public class Inventario {
@@ -14,16 +11,11 @@ public class Inventario {
     @GeneratedValue
     private Long id;
 
-    @OneToMany(mappedBy = "inventario")
-    private List<Articulo> articulos;
+    private Long idArticulo;
 
-    public List<Articulo> getArticulos() {
-        return articulos;
-    }
+    private Long stockSeguridad;
 
-    public void setArticulos(List<Articulo> articulos) {
-        this.articulos = articulos;
-    }
+    private Long stock;
 
     public void setId(Long id) {
         this.id = id;
@@ -31,5 +23,29 @@ public class Inventario {
 
     public Long getId() {
         return id;
+    }
+
+    public Long getStockSeguridad() {
+        return stockSeguridad;
+    }
+
+    public void setStockSeguridad(Long stockSeguridad) {
+        this.stockSeguridad = stockSeguridad;
+    }
+
+    public Long getStock() {
+        return stock;
+    }
+
+    public void setStock(Long stock) {
+        this.stock = stock;
+    }
+
+    public Long getIdArticulo() {
+        return idArticulo;
+    }
+
+    public void setIdArticulo(Long idArticulo) {
+        this.idArticulo = idArticulo;
     }
 }

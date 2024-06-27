@@ -1,22 +1,32 @@
 package com.operativa.gestion.service;
 
-import com.operativa.gestion.model.Proveedor;
-import com.operativa.gestion.model.TipoArticulo;
-import com.operativa.gestion.model.repository.ProveedorRepository;
-import com.operativa.gestion.model.repository.TipoArticuloRespository;
+import com.operativa.gestion.dto.ArticuloVentaDTO;
+import com.operativa.gestion.dto.VentaDTO;
+import com.operativa.gestion.model.*;
+import com.operativa.gestion.model.repository.*;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.logging.LogManager;
 
 @Service
 public class SharedService {
 
     private final TipoArticuloRespository tipoArticuloRespository;
     private final ProveedorRepository proveedorRepository;
+    private final VentaRepository ventaRepository;
+    private final ArticuloRepository articuloRepository;
+    private final ArticuloVentaRepository articuloVentaRepository;
 
-    public SharedService(TipoArticuloRespository tipoArticuloRespository, ProveedorRepository proveedorRepository) {
+    public SharedService(TipoArticuloRespository tipoArticuloRespository, ProveedorRepository proveedorRepository, VentaRepository ventaRepository, ArticuloRepository articuloRepository, ArticuloVentaRepository articuloVentaRepository) {
         this.tipoArticuloRespository = tipoArticuloRespository;
         this.proveedorRepository = proveedorRepository;
+        this.ventaRepository = ventaRepository;
+        this.articuloRepository = articuloRepository;
+        this.articuloVentaRepository = articuloVentaRepository;
     }
 
     public TipoArticulo crearTipoArticulo(TipoArticulo tipoArticulo) {
@@ -35,4 +45,33 @@ public class SharedService {
         return proveedorRepository.findAll();
     }
 
+    public Venta crearVenta(VentaDTO venta) {
+        List<ArticuloVentaDTO> articulos = venta.getArticulos();
+        BigDecimal montoTotal = BigDecimal.valueOf(0);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime fecha = LocalDateTime.parse(venta.getFechaVenta(), formatter);
+
+        List<ArticuloVenta> articuloVentas = new ArrayList<>();
+        for (ArticuloVentaDTO x : articulos) {
+            Long id = x.getIdArticuloVenta();
+            Optional<Articulo> articulo = articuloRepository.findById(id);
+            if (articulo.isPresent()) {
+                BigDecimal montoArticulo = articulo.get().getPrecio().multiply(BigDecimal.valueOf(x.getCantidadArticulo()));
+                montoTotal = montoTotal.add(montoArticulo);
+                articuloVentas.add(new ArticuloVenta(articulo.get(), x.getCantidadArticulo()));
+            } else {
+                throw new RuntimeException("Artículo no encontrado con ID: " + id);
+            }
+        }
+        Venta nuevaVenta = new Venta(montoTotal);
+        ventaRepository.save(nuevaVenta);
+        articuloVentas.stream().forEach(x -> {
+            x.setVenta(nuevaVenta);
+            x.setFechaVenta(fecha);
+            articuloVentaRepository.save(x);
+        });
+
+        return nuevaVenta;
+    }
 }

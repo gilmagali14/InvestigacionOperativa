@@ -3,9 +3,9 @@ package com.operativa.gestion.model;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 
-import jdk.jfr.Timestamp;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,18 +13,28 @@ import java.util.List;
 public class Articulo {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long codArticulo;
 
     private String nombre;
 
     private String descripcion;
 
-    private double precio;
+    private BigDecimal precio;
 
     private Long numeroLote;
 
     private LocalDateTime fechaBaja;
+
+    private BigDecimal costoAlmacenamiento;
+
+    public BigDecimal getCostoAlmacenamiento() {
+        return costoAlmacenamiento;
+    }
+
+    public void setCostoAlmacenamiento(BigDecimal costoAlmacenamiento) {
+        this.costoAlmacenamiento = costoAlmacenamiento;
+    }
 
     @CreationTimestamp
     private LocalDateTime fechaAlta;
@@ -44,14 +54,17 @@ public class Articulo {
     @OneToMany(mappedBy = "articulo", cascade = CascadeType.ALL)
     private List<OrdenCompraDetalle> ordenesCompraDetalle;
 
-    public Articulo(String nombre, String descripcion, double precio, TipoArticulo tipoArticulo, Proveedor proveedor,
-                    Long numeroLote) {
+    @OneToMany(mappedBy = "articulo", cascade = CascadeType.ALL)
+    private List<ArticuloVenta> articuloVentas;
+
+    public Articulo(String nombre, String descripcion, BigDecimal precio,
+                    TipoArticulo tipoArticulo, Proveedor proveedor, BigDecimal costoAlmacenamiento) {
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.precio = precio;
         this.tipoArticulo = tipoArticulo;
         this.proveedor = proveedor;
-        this.numeroLote = numeroLote;
+        this.costoAlmacenamiento = costoAlmacenamiento;
     }
 
     public Articulo() {
@@ -81,9 +94,9 @@ public class Articulo {
         this.descripcion = descripcion;
     }
 
-    public double getPrecio() { return precio;}
-
-    public void setPrecio(double precio) { this.precio = precio;}
+    public void setPrecio(BigDecimal precio) {
+        this.precio = precio;
+    }
 
     public Long getNumeroLote() {
         return numeroLote;
@@ -125,6 +138,10 @@ public class Articulo {
         this.ordenesCompraDetalle = ordenesCompraDetalle;
     }
 
+    public BigDecimal getPrecio() {
+        return precio;
+    }
+
     @Nullable
     public LocalDateTime getFechaBaja() {
         return fechaBaja;
@@ -133,6 +150,4 @@ public class Articulo {
     public void setFechaBaja(@Nullable LocalDateTime fechaBaja) {
         this.fechaBaja = fechaBaja;
     }
-
-
 }
