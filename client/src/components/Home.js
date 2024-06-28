@@ -17,6 +17,9 @@ function Home() {
                     <li className="nav-item">
                         <Link to="/articulos" className="nav-link">Ver Artículos</Link>
                     </li>
+                    <li className="nav-item">
+                        <Link to="/demanda" className="nav-link">Calcular demanda</Link>
+                    </li>
                 </ul>
             </nav>
         </div>
