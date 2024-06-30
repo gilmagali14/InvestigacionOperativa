@@ -141,7 +141,6 @@ public class Articulo {
     public BigDecimal getPrecio() {
         return precio;
     }
-
     @Nullable
     public LocalDateTime getFechaBaja() {
         return fechaBaja;
@@ -149,5 +148,9 @@ public class Articulo {
 
     public void setFechaBaja(@Nullable LocalDateTime fechaBaja) {
         this.fechaBaja = fechaBaja;
+    }
+
+    public Inventario getInventario() {
+        return inventario;
     }
 }

@@ -14,8 +14,8 @@ public interface ArticuloVentaRepository extends JpaRepository<ArticuloVenta, Lo
             "AND av.fechaVenta BETWEEN :fechaDesde AND :fechaHasta " +
             "ORDER BY av.fechaVenta DESC")
     List<ArticuloVenta> findArticuloVentaByArticuloIdAndFechaVentaBetween(@Param("articuloId") Long articuloId,
-                                                                          @Param("fechaDesde") LocalDateTime fechaDesde,
-                                                                          @Param("fechaHasta") LocalDateTime fechaHasta);
+                                                                          @Param("fechaDesde") String fechaDesde,
+                                                                          @Param("fechaHasta") String fechaHasta);
 
     @Query("SELECT av FROM ArticuloVenta av " +
             "WHERE av.articulo.codArticulo = :articuloId " +
@@ -27,6 +27,7 @@ public interface ArticuloVentaRepository extends JpaRepository<ArticuloVenta, Lo
             @Param("inicioMesSiguiente") LocalDateTime inicioMesSiguiente
     );
 
-    List<ArticuloVenta> findByArticuloId(Long articuloId);
+    @Query("SELECT av FROM ArticuloVenta av WHERE av.articulo.codArticulo = :articuloId ")
+    List<ArticuloVenta> findArticuloVentaByArticuloId(@Param("articuloId") Long articuloId);
 
 }

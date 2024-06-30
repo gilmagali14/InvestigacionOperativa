@@ -22,7 +22,7 @@ public class ArticuloVenta {
     @JoinColumn(name = "venta_id")
     private Venta venta;
 
-    LocalDateTime fechaVenta;
+    String fechaVenta;
 
     public ArticuloVenta() {
 
@@ -65,15 +65,15 @@ public class ArticuloVenta {
         this.cantidadArticulos = cantidadArticulos;
     }
 
-    public LocalDateTime getFechaVenta() {
+    public String getFechaVenta() {
         return fechaVenta;
     }
 
-    public void setFechaVenta(LocalDateTime fechaVenta) {
+    public void setFechaVenta(String fechaVenta) {
         this.fechaVenta = fechaVenta;
     }
 
-    public ArticuloVenta(Articulo articulo, Venta venta, Long cantidadArticulos, LocalDateTime fechaVenta) {
+    public ArticuloVenta(Articulo articulo, Venta venta, Long cantidadArticulos, String fechaVenta) {
         this.articulo = articulo;
         this.venta = venta;
         this.cantidadArticulos = cantidadArticulos;

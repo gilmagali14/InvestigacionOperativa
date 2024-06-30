@@ -6,20 +6,57 @@ import java.math.BigDecimal;
 
 public class ArticuloDTO {
 
+    private Long id;
+
     private String nombre;
 
     private String descripcion;
 
-    @Nonnull
     private String nombreTipoArticulo;
 
-    @Nonnull
     private String nombreProveedor;
 
-    @Nonnull
     private BigDecimal precio;
 
     private BigDecimal costoAlmacenamiento;
+
+    private Long stock;
+
+    private Long stockSeguridad;
+
+    private String modelo;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getModelo() {
+        return modelo;
+    }
+
+    public void setModelo(String modelo) {
+        this.modelo = modelo;
+    }
+
+    public Long getStock() {
+        return stock;
+    }
+
+    public void setStock(Long stock) {
+        this.stock = stock;
+    }
+
+    public Long getStockSeguridad() {
+        return stockSeguridad;
+    }
+
+    public void setStockSeguridad(Long stockSeguridad) {
+        this.stockSeguridad = stockSeguridad;
+    }
 
     public BigDecimal getCostoAlmacenamiento() {
         return costoAlmacenamiento;

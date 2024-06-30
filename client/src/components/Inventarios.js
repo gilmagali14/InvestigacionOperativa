@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const ArticulosComponent = () => {
@@ -20,25 +20,16 @@ const ArticulosComponent = () => {
 
   const bajaArticulo = async (idArticulo) => {
     try {
-      await axios.delete(`http://localhost:8080/baja/articulo/${idArticulo}`);
-      const updatedArticulos = articulos.map(articulo =>
-        articulo.codArticulo === idArticulo ? { ...articulo, fechaBaja: new Date() } : articulo
-      );
+      await axios.delete(`http://localhost:8080/delete/articulo/${idArticulo}`);
+    
+      const updatedArticulos = articulos.filter(articulo => articulo.codArticulo !== idArticulo);
       setArticulos(updatedArticulos);
     } catch (error) {
-      console.error('Error al dar de baja artículo:', error);
+      console.error('Error al dar de baja articulo:', error);
     }
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return '';
-
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    let month = (date.getMonth() + 1).toString().padStart(2, '0'); 
-    let day = date.getDate().toString().padStart(2, '0'); 
-    return `${year}-${month}-${day}`;
-  };
+ 
 
   return (
     <div className="container">
@@ -52,11 +43,9 @@ const ArticulosComponent = () => {
             <th scope="col">Precio</th>
             <th scope="col">Fecha Baja</th>
             <th scope="col">Costo de Almacenamiento</th>
-            <th scope="col">Tipo de articulo</th>
-            <th scope="col">Proveedor</th>
             <th scope="col">Stock</th>
             <th scope="col">Stock de Seguridad</th>
-            <th scope="col">Modelo de inventario</th>
+            <th scope="col">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -66,21 +55,12 @@ const ArticulosComponent = () => {
               <td>{articulo.nombre}</td>
               <td>{articulo.descripcion}</td>
               <td>{articulo.precio}</td>
-              <td>{formatDate(articulo.fechaBaja)}</td> {}
+              <td>{articulo.fechaBaja}</td>
               <td>{articulo.costoAlmacenamiento}</td>
-              <td>{articulo.tipoArticulo.nombre}</td>
-              <td>{articulo.proveedor.nombre}</td>
-              <td>{articulo.inventario.stock}</td>
-              <td>{articulo.inventario.stockSeguridad}</td>
-              <td>{articulo.inventario.modelo}</td>
+              <td>{articulo.stock}</td> {/* Agregar campo stock */}
+              <td>{articulo.stockSeguridad}</td> {/* Agregar campo stockSeguridad */}
               <td>
-                <button
-                  className="btn btn-danger"
-                  onClick={() => bajaArticulo(articulo.codArticulo)}
-                  disabled={articulo.fechaBaja !== null}
-                >
-                  Dar de baja
-                </button>
+                <button className="btn btn-danger" onClick={() => bajaArticulo(articulo.codArticulo)}>Dar de baja</button>
               </td>
             </tr>
           ))}

@@ -2,6 +2,7 @@ package com.operativa.gestion.service;
 
 import com.operativa.gestion.EstadosOrdenDeCompra;
 import com.operativa.gestion.dto.ArticuloOrdenCompraDTO;
+import com.operativa.gestion.dto.MostrarOrdenesDTO;
 import com.operativa.gestion.dto.OrdenDeCompraDTO;
 import com.operativa.gestion.model.Articulo;
 import com.operativa.gestion.model.EstadoOrdenDeCompra;
@@ -37,7 +38,7 @@ public class OrdenDeCompraService {
         this.articuloService = articuloService;
     }
 
-    public void crearOrdenDeCompra(OrdenDeCompraDTO ordenDeCompraDto) throws BadRequestException {
+    public OrdenDeCompra crearOrdenDeCompra(OrdenDeCompraDTO ordenDeCompraDto) throws BadRequestException {
         List<ArticuloOrdenCompraDTO> articulosIds = ordenDeCompraDto.getArticulos();
         OrdenDeCompra ordenDeCompra = new OrdenDeCompra();
         EstadoOrdenDeCompra estadoOrdenDeCompra = new EstadoOrdenDeCompra(EstadosOrdenDeCompra.CREADA.name());
@@ -63,5 +64,12 @@ public class OrdenDeCompraService {
 
         ordenDeCompraRespository.save(ordenDeCompra);
         ordenCompraDetalleRepository.saveAll(ordenCompra);
+        return ordenDeCompra;
+    }
+
+    public MostrarOrdenesDTO obtenerOrdenes() {
+        List<OrdenDeCompra> ordenDeCompras = ordenDeCompraRespository.findAll();
+        List<OrdenCompraDetalle> ordenCompraDetalles = ordenCompraDetalleRepository.findAll();
+        return new MostrarOrdenesDTO(ordenDeCompras, ordenCompraDetalles);
     }
 }

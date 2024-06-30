@@ -2,6 +2,7 @@ package com.operativa.gestion.service;
 
 import com.operativa.gestion.dto.ArticuloVentaDTO;
 import com.operativa.gestion.dto.VentaDTO;
+import com.operativa.gestion.dto.VentasDTO;
 import com.operativa.gestion.model.*;
 import com.operativa.gestion.model.repository.*;
 import org.springframework.stereotype.Service;
@@ -10,7 +11,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.logging.LogManager;
 
 @Service
 public class SharedService {
@@ -49,9 +49,6 @@ public class SharedService {
         List<ArticuloVentaDTO> articulos = venta.getArticulos();
         BigDecimal montoTotal = BigDecimal.valueOf(0);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        LocalDateTime fecha = LocalDateTime.parse(venta.getFechaVenta(), formatter);
-
         List<ArticuloVenta> articuloVentas = new ArrayList<>();
         for (ArticuloVentaDTO x : articulos) {
             Long id = x.getIdArticuloVenta();
@@ -68,10 +65,23 @@ public class SharedService {
         ventaRepository.save(nuevaVenta);
         articuloVentas.stream().forEach(x -> {
             x.setVenta(nuevaVenta);
-            x.setFechaVenta(fecha);
+            x.setFechaVenta(venta.getFechaVenta());
             articuloVentaRepository.save(x);
         });
 
         return nuevaVenta;
+    }
+
+    public List<VentasDTO> mostrarVentasPorArticulo(Long idArticulo) {
+        List<ArticuloVenta> articuloVentas = articuloVentaRepository.findArticuloVentaByArticuloId(idArticulo);
+        List<VentasDTO> ventasDTO = new ArrayList<>();
+        for (ArticuloVenta articuloVenta : articuloVentas) {
+            VentasDTO ventas = new VentasDTO();
+            ventas.setFechaVenta(articuloVenta.getFechaVenta());
+            ventas.setVenta(articuloVenta.getVenta());
+            ventas.setCantidadArticulos(articuloVenta.getCantidadArticulos());
+            ventasDTO.add(ventas);
+       }
+        return ventasDTO;
     }
 }

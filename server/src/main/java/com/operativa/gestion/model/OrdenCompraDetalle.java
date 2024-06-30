@@ -31,20 +31,18 @@ public class OrdenCompraDetalle {
         this.id = id;
     }
 
-    public OrdenDeCompra getOrdenDeCompra() {
-        return ordenDeCompra;
-    }
-
     public void setOrdenDeCompra(OrdenDeCompra ordenDeCompra) {
         this.ordenDeCompra = ordenDeCompra;
     }
 
-    public Articulo getArticulo() {
-        return articulo;
-    }
+    public Articulo getArticulo() { return articulo; }
 
     public void setArticulo(Articulo articulo) {
         this.articulo = articulo;
+    }
+
+    public OrdenDeCompra getOrdenDeCompra() {
+        return ordenDeCompra;
     }
 
     public int getCantidad() {

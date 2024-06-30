@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const CrearArticulo = () => {
+const ActualizarArticulo = () => {
   const navigate = useNavigate();
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
@@ -16,6 +16,7 @@ const CrearArticulo = () => {
   const [stock, setStock] = useState(0); 
   const [stockSeguridad, setStockSeguridad] = useState(0); 
   const [modeloGestion, setModeloGestion] = useState('');  
+  const [idArticulo, setIdArticulo] = useState(null); 
 
   useEffect(() => {
     obtenerTipoArticulos();
@@ -43,30 +44,85 @@ const CrearArticulo = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8080/crear/articulo', {
-        nombre,
-        descripcion,
-        nombreTipoArticulo: selectedTipoArticulo,
-        nombreProveedor: selectedProveedor,
-        precio,
-        costoAlmacenamiento,
-        stock,
-        stockSeguridad,
-        modelo: modeloGestion
-      });
-      navigate('/articulos');
-      console.log(response.data);
+        const body = {
+            id: idArticulo,
+            nombre,
+            descripcion,
+            nombreTipoArticulo: selectedTipoArticulo,
+            nombreProveedor: selectedProveedor,
+            precio,
+            costoAlmacenamiento,
+            stock,
+            stockSeguridad,
+            modelo: modeloGestion
+        }
+        console.log(body )
+        const response = await axios.put('http://localhost:8080/actualizar/articulo', body);
+        navigate('/articulos');
+        console.log(response.data);
     } catch (error) {
       console.error('Error al crear el artículo:', error);
     }
   };
+  
+  const [articulos, setArticulos] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+      
+        const response = await fetch('http://localhost:8080/articulos');
+        const data = await response.json();
+        setArticulos(data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    
+    fetchData();
+  }, []);
+
+  const handleArticuloSelection = (id) => {
+    setIdArticulo(id);
+  };
 
   return (
-    <div className="container-fluid d-flex justify-content-center align-items-center vh-100">
+    <div className="container-fluid d-flex justify-content-center align-items-start vh-100">
       <div className="p-5 m-5 bg-light">
-        <form onSubmit={handleSubmit}>
-          <div className="row mb-3">
-            <div className="col-md-6">
+      <table className="table">
+      <thead>
+          <tr>
+            <th scope="col">Código</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Descripción</th>
+            <th scope="col">Precio</th>
+            <th scope="col">Tipo de articulo</th>
+            <th scope="col">Proveedor</th>
+            <th scope="col">Stock</th>
+            <th scope="col">Stock de Seguridad</th>
+            <th scope="col">Modelo de inventario</th>
+          </tr>
+        </thead>
+        <tbody>
+          {articulos.map(articulo => (
+            <tr key={articulo.codArticulo}>
+                <td><input type="checkbox" onChange={() => handleArticuloSelection(articulo.codArticulo)} /></td>
+              <td>{articulo.nombre}</td>
+              <td>{articulo.descripcion}</td>
+              <td>{articulo.precio}</td>
+              <td>{articulo.tipoArticulo.nombre}</td>
+              <td>{articulo.proveedor.nombre}</td>
+              <td>{articulo.inventario.stock}</td>
+              <td>{articulo.inventario.stockSeguridad}</td>
+              <td>{articulo.inventario.modelo}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {idArticulo !== null && ( // Mostrar el formulario solo si se ha seleccionado un artículo
+        <form onSubmit={handleSubmit}>   
+        <div>       
+          <div className="col-md-6">
               <label htmlFor="nombre" className="form-label">Nombre</label>
               <input
                 type="text"
@@ -194,9 +250,10 @@ const CrearArticulo = () => {
             </div>
           </div>
         </form>
-      </div>
+      )}
+</div>
     </div>
   );
 };
 
-export default CrearArticulo;
+export default ActualizarArticulo;

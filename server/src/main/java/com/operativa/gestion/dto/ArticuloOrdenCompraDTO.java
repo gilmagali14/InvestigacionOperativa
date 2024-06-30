@@ -20,4 +20,9 @@ public class ArticuloOrdenCompraDTO {
     public void setCantidad(int cantidad) {
         this.cantidad = cantidad;
     }
+
+    public ArticuloOrdenCompraDTO(long idArticulo, int cantidad) {
+        this.idArticulo = idArticulo;
+        this.cantidad = cantidad;
+    }
 }
