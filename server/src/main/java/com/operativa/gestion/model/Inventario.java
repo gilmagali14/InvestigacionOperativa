@@ -17,19 +17,27 @@ public class Inventario {
 
     private String modelo;
 
-    @OneToMany(mappedBy = "inventario")
-    private List<Articulo> articulos;
+    private Double loteOptimo;
+
+    private Double puntoPedido;
+
+    public Double getLoteOptimo() {
+        return loteOptimo;
+    }
+
+    public void setLoteOptimo(Double loteOptimo) {
+        this.loteOptimo = loteOptimo;
+    }
+
+    public Double getPuntoPedido() {
+        return puntoPedido;
+    }
+
+    public void setPuntoPedido(Double puntoPedido) {
+        this.puntoPedido = puntoPedido;
+    }
 
     public Inventario() {
-
-    }
-
-    public List<Articulo> getArticulos() {
-        return articulos;
-    }
-
-    public void setArticulos(List<Articulo> articulos) {
-        this.articulos = articulos;
     }
 
     public String getModelo() {
@@ -64,11 +72,13 @@ public class Inventario {
         this.stock = stock;
     }
 
-    public Inventario(Long id, Long stockSeguridad, Long stock, String modelo, List<Articulo> articulos) {
+    public Inventario(Long id, Long stockSeguridad, Long stock, String modelo, Double loteOptimo, Double puntoPedido,
+                      List<Articulo> articulos) {
         this.id = id;
         this.stockSeguridad = stockSeguridad;
         this.stock = stock;
         this.modelo = modelo;
-        this.articulos = articulos;
+        this.loteOptimo = loteOptimo;
+        this.puntoPedido = puntoPedido;
     }
 }

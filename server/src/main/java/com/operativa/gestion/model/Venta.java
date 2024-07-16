@@ -3,8 +3,6 @@ package com.operativa.gestion.model;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 public class Venta {
@@ -13,21 +11,21 @@ public class Venta {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long codVenta;
 
-    private BigDecimal montoTotal;
+    private Double montoTotal;
 
     public Long getCodVenta() {return codVenta;}
 
     public void setCodVenta(Long codVenta) {this.codVenta = codVenta;}
 
-    public BigDecimal getMontoTotal() {
+    public Double getMontoTotal() {
         return montoTotal;
     }
 
-    public void setMontoTotal(BigDecimal montoTotal) {
+    public void setMontoTotal(Double montoTotal) {
         this.montoTotal = montoTotal;
     }
 
-    public Venta(BigDecimal montoTotal) {
+    public Venta(Double montoTotal) {
         this.montoTotal = montoTotal;
     }
 

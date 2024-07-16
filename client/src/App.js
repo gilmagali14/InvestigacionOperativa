@@ -6,8 +6,11 @@ import CrearOrdenCompra from './components/CrearOrdenCompra';
 import Demanda from './components/Demanda';
 import VentasComponent from './components/VentasComponent';
 import Inventario from './components/Inventario';
-import Inventarios from './components/Inventarios';
 import Actualizar from './components/ActualizarArticulo';
+import DemandasComponent from './components/Demandas';
+import OrdenCompra from './components/OrdenDeCompra';
+import CrearVenta from './components/CrearVenta';
+import InventarioAll from './components/InventarioAll';
 
 const App = () => {
  return (
@@ -16,12 +19,15 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/crear/articulo" element={<CrearArticulo />} />
           <Route path="/articulos" element={<Articulos />} />
-          <Route path="/crear/orden-de-compra" element={<CrearOrdenCompra />} />
-          <Route path="/inventario" element={<Inventario />} />
-          <Route path="/inventarios" element={<Inventarios />} />
+          <Route path="/crear/orden-de-compra/:demandaCalculada" element={<CrearOrdenCompra />} />
+          <Route path="/inventario" element={<InventarioAll />} />
           <Route path="/demanda" element={<Demanda />} />
-          <Route path="/ventas/:idArticulo/:demandaCalcualda" element={<VentasComponent />} />
           <Route path="/actualizar/articulo" element={<Actualizar />} />
+          <Route path="/demandas" element={<DemandasComponent />} />
+          <Route path="/ordenes-de-compra" element={<OrdenCompra />} />
+          <Route path="/crear/venta" element={<CrearVenta />} />
+
+          <Route path="/ventas" element={<VentasComponent />} />
        </Routes>
     </>
  );

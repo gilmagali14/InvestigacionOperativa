@@ -8,8 +8,6 @@ import java.util.List;
 
 public interface InventarioRepository extends JpaRepository<Inventario, Long> {
 
-    Inventario findByIdArticulo(Long idArticulo);
-
     List<Inventario> findAllByModelo(@Param("modelo") String modelo);
 
 }

@@ -1,26 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { toast } from 'react-toastify';
 
-const ActualizarArticulo = () => {
-  const navigate = useNavigate();
-  const [nombre, setNombre] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-  const [precio, setPrecio] = useState(0);
-  const [costoAlmacenamiento, setCostoAlmacenamiento] = useState(0);
+const ActualizarArticulo = ({ toggleUpdate, id }) => {
   const [tipoArticulos, setTipoArticulos] = useState([]);
-  const [selectedTipoArticulo, setSelectedTipoArticulo] = useState('');
-  const [proveedores, setProveedores] = useState([]);
-  const [selectedProveedor, setSelectedProveedor] = useState('');
-  const [stock, setStock] = useState(0); 
-  const [stockSeguridad, setStockSeguridad] = useState(0); 
-  const [modeloGestion, setModeloGestion] = useState('');  
-  const [idArticulo, setIdArticulo] = useState(null); 
+  const [articulo, setArticulo] = useState({
+    nombre: '',
+    precio: 0,
+    descripcion: '',
+    nombreTipoArticulo: '',
+    stock: 0,
+    tasaRotacion: ''
+  });
 
   useEffect(() => {
     obtenerTipoArticulos();
-    obtenerProveedores();
+    fetchData();
   }, []);
 
   const obtenerTipoArticulos = async () => {
@@ -32,226 +28,155 @@ const ActualizarArticulo = () => {
     }
   };
 
-  const obtenerProveedores = async () => {
+  const fetchData = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/proveedores');
-      setProveedores(response.data);
+      const response = await fetch(`http://localhost:8080/articulo/${id}`);
+      const data = await response.json();
+      setArticulo({
+        nombre: data.nombre,
+        precio: data.precio,
+        descripcion: data.descripcion,
+        nombreTipoArticulo: data.tipoArticulo.nombre,
+        stock: data.stock,
+        tasa: data.tasaRotacion
+      });
     } catch (error) {
-      console.error('Error al obtener tipos de proveedores:', error);
+      console.error('Error fetching data:', error);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        const body = {
-            id: idArticulo,
-            nombre,
-            descripcion,
-            nombreTipoArticulo: selectedTipoArticulo,
-            nombreProveedor: selectedProveedor,
-            precio,
-            costoAlmacenamiento,
-            stock,
-            stockSeguridad,
-            modelo: modeloGestion
-        }
-        console.log(body )
-        const response = await axios.put('http://localhost:8080/actualizar/articulo', body);
-        navigate('/articulos');
-        console.log(response.data);
+      const body = {
+        id: id,
+        nombre: articulo.nombre,
+        descripcion: articulo.descripcion,
+        nombreTipoArticulo: articulo.nombreTipoArticulo,
+        precio: articulo.precio,
+        stock: articulo.stock,
+        tasaRotacion: articulo.tasaRotacion
+      };
+
+      const response = await axios.put('http://localhost:8080/actualizar/articulo', body);
+      toast.success('Articulo actualizado exitosamente');
+      toggleUpdate(false);
     } catch (error) {
-      console.error('Error al crear el artículo:', error);
+      console.error('Error al actualizar el artículo:', error);
     }
   };
-  
-  const [articulos, setArticulos] = useState([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-      
-        const response = await fetch('http://localhost:8080/articulos');
-        const data = await response.json();
-        setArticulos(data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    
-    fetchData();
-  }, []);
-
-  const handleArticuloSelection = (id) => {
-    setIdArticulo(id);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setArticulo({ ...articulo, [name]: value });
   };
 
   return (
-    <div className="container-fluid d-flex justify-content-center align-items-start vh-100">
-      <div className="p-5 m-5 bg-light">
-      <table className="table">
-      <thead>
-          <tr>
-            <th scope="col">Código</th>
-            <th scope="col">Nombre</th>
-            <th scope="col">Descripción</th>
-            <th scope="col">Precio</th>
-            <th scope="col">Tipo de articulo</th>
-            <th scope="col">Proveedor</th>
-            <th scope="col">Stock</th>
-            <th scope="col">Stock de Seguridad</th>
-            <th scope="col">Modelo de inventario</th>
-          </tr>
-        </thead>
-        <tbody>
-          {articulos.map(articulo => (
-            <tr key={articulo.codArticulo}>
-                <td><input type="checkbox" onChange={() => handleArticuloSelection(articulo.codArticulo)} /></td>
-              <td>{articulo.nombre}</td>
-              <td>{articulo.descripcion}</td>
-              <td>{articulo.precio}</td>
-              <td>{articulo.tipoArticulo.nombre}</td>
-              <td>{articulo.proveedor.nombre}</td>
-              <td>{articulo.inventario.stock}</td>
-              <td>{articulo.inventario.stockSeguridad}</td>
-              <td>{articulo.inventario.modelo}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {idArticulo !== null && ( // Mostrar el formulario solo si se ha seleccionado un artículo
-        <form onSubmit={handleSubmit}>   
-        <div>       
-          <div className="col-md-6">
-              <label htmlFor="nombre" className="form-label">Nombre</label>
-              <input
-                type="text"
-                className="form-control"
-                id="nombre"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                required
-              />
+    <div className="container mt-4">
+      <div className="modal fade show" tabIndex="-1" role="dialog" style={{ display: 'block' }}>
+        <div className="modal-dialog modal-lg" role="document">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Actualizar Artículo</h5>
+              <button type="button" className="btn-close" onClick={() => toggleUpdate(false)}></button>
             </div>
-            <div className="col-md-6">
-              <label htmlFor="precio" className="form-label">Precio</label>
-              <input
-                type="number"
-                className="form-control"
-                id="precio"
-                value={precio}
-                onChange={(e) => setPrecio(parseFloat(e.target.value))}
-                required
-              />
-            </div>
-          </div>
-          <div className="row mb-3">
-            <div className="col-md-6">
-              <label htmlFor="descripcion" className="form-label">Descripción</label>
-              <textarea
-                className="form-control"
-                id="descripcion"
-                value={descripcion}
-                onChange={(e) => setDescripcion(e.target.value)}
-                required
-              />
-            </div>
-            <div className="col-md-6">
-              <label htmlFor="costoAlmacenamiento" className="form-label">Costo de Almacenamiento</label>
-              <input
-                type="number"
-                className="form-control"
-                id="costoAlmacenamiento"
-                value={costoAlmacenamiento}
-                onChange={(e) => setCostoAlmacenamiento(parseFloat(e.target.value))}
-                required
-              />
-            </div>
-          </div>
-          <div className="row mb-3">
-            <div className="col-md-6">
-              <label htmlFor="tipoArticulo" className="form-label">Tipo de Artículo</label>
-              <select
-                className="form-select"
-                id="tipoArticulo"
-                value={selectedTipoArticulo}
-                onChange={(e) => setSelectedTipoArticulo(e.target.value)}
-                required
-              >
-                <option value="">Seleccionar Tipo</option>
-                {tipoArticulos.map((tipo) => (
-                  <option key={tipo.nombre} value={tipo.nombre}>
-                    {tipo.nombre}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="col-md-6">
-              <label htmlFor="proveedor" className="form-label">Proveedor</label>
-              <select
-                className="form-select"
-                id="proveedor"
-                value={selectedProveedor}
-                onChange={(e) => setSelectedProveedor(e.target.value)}
-                required
-              >
-                <option value="">Seleccionar Proveedor</option>
-                {proveedores.map((prov) => (
-                  <option key={prov.nombre} value={prov.nombre}>
-                    {prov.nombre}
-                  </option>
-                ))}
-              </select>
+            <div className="modal-body">
+              {id !== null && (
+                <form onSubmit={handleSubmit}>
+                  <div className="row mb-3">
+                    <div className="col-md-6">
+                      <label htmlFor="nombre" className="form-label">Nombre</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="nombre"
+                        name="nombre"
+                        value={articulo.nombre}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-6">
+                      <label htmlFor="precio" className="form-label">Precio</label>
+                      <input
+                        type="number"
+                        className="form-control"
+                        id="precio"
+                        name="precio"
+                        value={articulo.precio}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="row mb-3">
+                    <div className="col-md-6">
+                      <label htmlFor="descripcion" className="form-label">Descripción</label>
+                      <textarea
+                        className="form-control"
+                        id="descripcion"
+                        name="descripcion"
+                        value={articulo.descripcion}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-6">
+                      <label htmlFor="tipoArticulo" className="form-label">Tipo de Artículo</label>
+                      <select
+                        className="form-select"
+                        id="tipoArticulo"
+                        name="nombreTipoArticulo"
+                        value={articulo.nombreTipoArticulo}
+                        onChange={handleChange}
+                        required
+                      >
+                        <option value="">Seleccionar Tipo</option>
+                        {tipoArticulos.map((tipo) => (
+                          <option key={tipo.nombre} value={tipo.nombre}>
+                            {tipo.nombre}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="row mb-3">
+                    <div className="col-md-6">
+                      <label htmlFor="stock" className="form-label">Stock</label>
+                      <input
+                        type="number"
+                        className="form-control"
+                        id="stock"
+                        name="stock"
+                        value={articulo.stock}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-6">
+                      <label htmlFor="tasa" className="form-label">Tasa de Rotacion</label>
+                      <input
+                        type="number"
+                        className="form-control"
+                        id="tasa"
+                        name="tasa"
+                        value={articulo.tasaRotacion}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-md-12">
+                      <button type="submit" className="btn btn-primary">Actualizar Artículo</button>
+                    </div>
+                  </div>
+                </form>
+              )}
             </div>
           </div>
-          <div className="row mb-3">
-            <div className="col-md-6">
-              <label htmlFor="stock" className="form-label">Stock</label>
-              <input
-                type="number"
-                className="form-control"
-                id="stock"
-                value={stock}
-                onChange={(e) => setStock(parseInt(e.target.value))}
-                required
-              />
-            </div>
-          </div>
-          <div className="col-md-6">
-            <label htmlFor="stockSeguridad" className="form-label">Stock de Seguridad</label>
-            <input
-              type="number"
-              className="form-control"
-              id="stockSeguridad"
-              value={stockSeguridad}
-              onChange={(e) => setStockSeguridad(parseInt(e.target.value))}
-              required
-            />
-          </div>
-          <div className="mb-3 w-100">
-            <label htmlFor="modeloGestion" className="form-label">
-              Seleccionar modelo de gestión de inventario
-                </label>
-                <select
-                    className="form-select"
-                    id="modeloGestion"
-                    value={modeloGestion}
-                    onChange={(e) => setModeloGestion(e.target.value)}
-                    required
-                >
-                    <option value="">Seleccionar modelo</option>
-                    <option value="Modelo de Lote Fijo">Modelo de Lote Fijo</option>
-                    <option value="Modelo Intervalo Fijo">Modelo Intervalo Fijo</option>
-                </select>
-          </div>
-          <div className="row">
-            <div className="col-md-12">
-              <button type="submit" className="btn btn-primary">Crear Artículo</button>
-            </div>
-          </div>
-        </form>
-      )}
-</div>
+        </div>
+      </div>
     </div>
   );
 };

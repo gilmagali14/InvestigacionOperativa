@@ -31,4 +31,14 @@ public class DemandaDto {
     public void setIdArticulo(Long idArticulo) {
         this.idArticulo = idArticulo;
     }
+
+    public DemandaDto(String fechaDesde, String fechaHasta, Long idArticulo) {
+        this.fechaDesde = fechaDesde;
+        this.fechaHasta = fechaHasta;
+        this.idArticulo = idArticulo;
+    }
+
+    public DemandaDto() {
+
+    }
 }

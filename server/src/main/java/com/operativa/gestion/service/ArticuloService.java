@@ -1,10 +1,10 @@
 package com.operativa.gestion.service;
 
 import com.operativa.gestion.dto.ArticuloDTO;
+import com.operativa.gestion.dto.ArticuloProveedorDTO;
+import com.operativa.gestion.dto.ArticulosProveedoresDTO;
 import com.operativa.gestion.model.*;
 import com.operativa.gestion.model.repository.*;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
@@ -16,43 +16,36 @@ import java.util.Optional;
 @Service
 public class ArticuloService {
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     private final OrdenCompraDetalleRepository ordenCompraDetalleRepository;
     private final ArticuloRepository articuloRepository;
     private final TipoArticuloRespository tipoArticuloRespository;
     private final ProveedorRepository proveedorRepository;
-    private final InventarioRepository inventarioRepository;
+    private final ArticuloProveedorRepository articuloProveedorRepository;
+    private final InventarioService inventarioService;
+    private final OrdenDeCompraRespository ordenDeCompraRespository;
 
-    public ArticuloService(OrdenCompraDetalleRepository ordenCompraDetalleRepository, ArticuloRepository articuloRepository, TipoArticuloRespository tipoArticuloRespository,
-                           ProveedorRepository proveedorRepository, InventarioRepository inventarioRepository) {
+    public ArticuloService(OrdenCompraDetalleRepository ordenCompraDetalleRepository, ArticuloRepository articuloRepository,
+                           TipoArticuloRespository tipoArticuloRespository,
+                           ProveedorRepository proveedorRepository, InventarioService inventarioService,
+                           ArticuloProveedorRepository articuloProveedorRepository, OrdenDeCompraRespository ordenDeCompraRespository) {
         this.ordenCompraDetalleRepository = ordenCompraDetalleRepository;
         this.articuloRepository = articuloRepository;
         this.tipoArticuloRespository = tipoArticuloRespository;
         this.proveedorRepository = proveedorRepository;
-        this.inventarioRepository = inventarioRepository;
+        this.articuloProveedorRepository = articuloProveedorRepository;
+        this.inventarioService = inventarioService;
+        this.ordenDeCompraRespository = ordenDeCompraRespository;
     }
 
     public void crearArticulo(ArticuloDTO articuloDTO) throws BadRequestException {
         Optional<TipoArticulo> tipoArticulo = tipoArticuloRespository.findByNombre(articuloDTO.getNombreTipoArticulo());
-        Optional<Proveedor> proveedor = proveedorRepository.findByNombre(articuloDTO.getNombreProveedor());
 
-        if (tipoArticulo.isEmpty() || proveedor.isEmpty()) {
-            throw new BadRequestException("El tipo de articulo o proveedor no existe");
+        if (tipoArticulo.isEmpty()) {
+            throw new BadRequestException("El tipo de articulo no existe");
         }
 
-        Articulo articulo = new Articulo(articuloDTO.getNombre(), articuloDTO.getDescripcion(),
-                                         articuloDTO.getPrecio(), tipoArticulo.get(), proveedor.get(),
-                                         articuloDTO.getCostoAlmacenamiento());
-
-        if(articuloDTO.getStock() < articuloDTO.getStockSeguridad()) {
-            throw new BadRequestException("El stock no puede ser menor que el stock de seguridad");
-        }
-        Inventario inventario = new Inventario(articulo.getCodArticulo(), articuloDTO.getStockSeguridad(),
-                                                articuloDTO.getStock(), articuloDTO.getModelo());
-        inventarioRepository.save(inventario);
-        articulo.setInventario(inventario);
+        Articulo articulo = new Articulo(articuloDTO.getNombre(), articuloDTO.getDescripcion(), articuloDTO.getPrecio(),
+                                         articuloDTO.getTasaRotacion(), tipoArticulo.get(), articuloDTO.getStock());
 
         articuloRepository.save(articulo);
     }
@@ -79,34 +72,108 @@ public class ArticuloService {
             throw new BadRequestException("El articulo no existe");
         }
         Optional<TipoArticulo> tipoArticulo = tipoArticuloRespository.findByNombre(articuloDTO.getNombreTipoArticulo());
-        Optional<Proveedor> proveedor = proveedorRepository.findByNombre(articuloDTO.getNombreProveedor());
 
-        if (tipoArticulo.isEmpty() || proveedor.isEmpty()) {
+        if (tipoArticulo.isEmpty()) {
             throw new BadRequestException("El tipo de articulo o proveedor no existe");
         }
-
         Articulo art = articulo.get();
         art.setNombre(articuloDTO.getNombre());
         art.setDescripcion(articuloDTO.getDescripcion());
         art.setPrecio(articuloDTO.getPrecio());
         art.setTipoArticulo(tipoArticulo.get());
-        art.setProveedor(proveedor.get());
-        art.setCostoAlmacenamiento(articuloDTO.getCostoAlmacenamiento());
-
+        art.setTasaRotacion(articuloDTO.getTasaRotacion());
+        art.setStock(articuloDTO.getStock());
         articuloRepository.save(art);
-
-        Inventario inventario = inventarioRepository.findByIdArticulo(articuloDTO.getId());
-        inventario.setStock(articuloDTO.getStock());
-        inventario.setStockSeguridad(articuloDTO.getStockSeguridad());
-        inventario.setModelo(articuloDTO.getModelo());
     }
+
     public List<Articulo> obtenerArticulos() {
         return articuloRepository.findAll();
     }
 
-    public Optional<Articulo> obtenerArticulo(Long idArticulo) {
-        return articuloRepository.findById(idArticulo);
+    public Articulo obtenerArticuloPorId(Long idArticulo) {
+        return articuloRepository.findById(idArticulo).get();
+    }
+
+    public ArticuloProveedor crearArticuloProveedor(ArticuloProveedorDTO articuloProveedorDTO) throws BadRequestException {
+        Articulo articulo = articuloRepository.findById(articuloProveedorDTO.getArticulo()).get();
+        Proveedor proveedor = proveedorRepository.findByNombre(articuloProveedorDTO.getProveedor()).get();
+
+        Optional<ArticuloProveedor> art = articuloProveedorRepository.findByArticuloAndProveedor(articulo, proveedor);
+
+        if (art.isPresent()) {
+            throw new BadRequestException("El articulo ya esta asociado a ese proveedor");
+        }
+        double costoPedido = articuloProveedorDTO.getCostoPedido();
+
+        ArticuloProveedor articuloProveedor = new ArticuloProveedor();
+        articuloProveedor.setTiempoEntrega(articuloProveedorDTO.getTiempoEntrega());
+        articuloProveedor.setCostoPedido(articuloProveedorDTO.getCostoPedido());
+        articuloProveedor.setArticulo(articulo);
+        articuloProveedor.setProveedor(proveedor);
+        articuloProveedor.setModelo(articuloProveedorDTO.getModelo());
+       articuloProveedor = inventarioService.updateArticuloInventario(articuloProveedor);
+        articuloProveedorRepository.save(articuloProveedor);
+        articuloRepository.save(articulo);
+
+        return articuloProveedor;
+    }
+
+    public List<ArticulosProveedoresDTO> articuloProveedores() {
+        List<Articulo> articulos = articuloRepository.findAll();
+        List<ArticuloProveedorDTO> list = new ArrayList<>();
+        List<ArticulosProveedoresDTO> listaFinal = new ArrayList<>();
+        for (Articulo articulo : articulos) {
+            ArticulosProveedoresDTO dtoFinal = new ArticulosProveedoresDTO();
+            List<ArticuloProveedor> articuloProveedors = articuloProveedorRepository.findAllByArticulo(articulo);
+            dtoFinal.setNombreArticulo(articulo.getNombre());
+            dtoFinal.setDescripcion(articulo.getDescripcion());
+            dtoFinal.setStock(articulo.getStock());
+            dtoFinal.setPrecio(articulo.getPrecio());
+            dtoFinal.setTipoArticulo(articulo.getTipoArticulo().getNombre());
+            dtoFinal.setIdArticulo(articulo.getIdArticulo());
+            if (!articuloProveedors.isEmpty()) {
+                for (ArticuloProveedor articuloProveedor : articuloProveedors) {
+                    list.add(new ArticuloProveedorDTO(articuloProveedor.getTiempoEntrega(),
+                                                      articuloProveedor.getCostoPedido(),
+                                                      articuloProveedor.getProveedor().getNombre(),
+                                                      articuloProveedor.getModelo(),
+                                                      articuloProveedor.getStockSeguridad(),
+                                                      articuloProveedor.getLoteOptimo(),
+                            articuloProveedor.getPuntoPedido()));
+                }
+                dtoFinal.setArticuloProveedor(list);
+            }
+            listaFinal.add(dtoFinal);
+        }
+        return listaFinal;
+    }
+
+    public List<ArticulosProveedoresDTO> articulosReponer() {
+        List<ArticulosProveedoresDTO> articulosReponer = new ArrayList<>();
+        List<ArticulosProveedoresDTO> articuloProveedores = articuloProveedores();
+        for (ArticulosProveedoresDTO artDto : articuloProveedores) {
+            List<OrdenCompraDetalle> ordenDeCompra = ordenCompraDetalleRepository.findByArticuloIdAndStatus(artDto.getIdArticulo());
+            if (!ordenDeCompra.isEmpty()) {
+                for (ArticuloProveedorDTO articuloProveedorDTO : artDto.getArticuloProveedor()) {
+                    if (artDto.getStock() <= articuloProveedorDTO.getPuntoPedido()) {
+                        articulosReponer.add(artDto);
+                    }
+                }
+            }
+        }
+        return articulosReponer;
+    }
+
+    public List<Proveedor> proveedoresPorArticulo(Long id) {
+        Articulo articulo = articuloRepository.findById(id).get();
+        List<ArticuloProveedor> articuloProveedors = articuloProveedorRepository.findAllByArticulo(articulo);
+        List<Proveedor> proveedores = new ArrayList<>();
+        for (ArticuloProveedor articuloProveedor : articuloProveedors) {
+            proveedores.add(articuloProveedor.getProveedor());
+        }
+        return proveedores;
     }
 }
+
 
 

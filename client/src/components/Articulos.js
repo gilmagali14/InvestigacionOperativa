@@ -1,97 +1,237 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
+import SearchBar from './SearchBar';
+import { toast } from 'react-toastify';
+import CrearArticulo from './CrearArticulo';
+import ActualizarArticulo from './ActualizarArticulo';
+import AddArticuloProveedor from './Proveedor';
+import Card from './Card';
+import { AiFillAliwangwang } from "react-icons/ai";
+import { BiLastPage } from "react-icons/bi";
+import CrearVenta from './CrearVenta';
 
-const ArticulosComponent = () => {
+const Articulos = () => {
   const [articulos, setArticulos] = useState([]);
+  const [search, setSearch] = useState('');
+  const [filteredArticle, setFilteredArticle] = useState([]);
+  const [filter, setFilter] = useState('');
+  const [create, setCreate] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
+  const [proveedor, setProveedor] = useState(false);
+  const [update, setUpdate] = useState(false);
+  const [showUpdate, setShowUpdate] = useState(false);
+  const [idArticulo, setIdArticulo] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [showSales, setShowSales] = useState(false);
+  const [newSaleArticle, setNewSaleArticle] = useState(0);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get('http://localhost:8080/articulos');
-        setArticulos(response.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
+  const quantityPerPage = 5;
 
-    fetchData();
-  }, []);
-
-  const bajaArticulo = async (idArticulo) => {
-    try {
-      await axios.delete(`http://localhost:8080/baja/articulo/${idArticulo}`);
-      const updatedArticulos = articulos.map(articulo =>
-        articulo.codArticulo === idArticulo ? { ...articulo, fechaBaja: new Date() } : articulo
+  const filterArticlebyStock = (articulos, filter) => {
+    if (filter === 'stock seguridad') {
+      const filtered = articulos.filter(
+        articulo =>
+          articulo.stock + (articulo.stock_ingreso_pendiente ?? 0) <=
+          (articulo.stock_seguridad ?? 0)
       );
-      setArticulos(updatedArticulos);
+      return filtered;
+    }
+    if (filter === 'punto pedido') {
+      const filtered = articulos.filter(
+        articulo =>
+          articulo.stock + (articulo.stock_ingreso_pendiente ?? 0) <=
+          (articulo.punto_pedido ?? 0)
+      );
+      return filtered;
+    }
+    return articulos;
+  };
+
+  const searchArticle = async (search, filter) => {
+    const filtered = articulos.filter(articulo =>
+      articulo?.nombre?.toLowerCase().includes(search.toLowerCase())
+    );
+    if (search === '') {
+      setFilteredArticle(filterArticlebyStock(articulos, filter));
+    }
+    setFilteredArticle(filterArticlebyStock(filtered, filter));
+  };
+
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/articulos');
+      setArticulos(response.data);
+      setFilteredArticle(response.data);
     } catch (error) {
-      console.error('Error al dar de baja artículo:', error);
+      console.error('Error fetching data:', error);
+      toast.error('Error fetching data');
     }
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return '';
-
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    let month = (date.getMonth() + 1).toString().padStart(2, '0'); 
-    let day = date.getDate().toString().padStart(2, '0'); 
-    return `${year}-${month}-${day}`;
+  const deleteArticle = async (id) => {
+    try {
+      const response = await axios.delete(`http://localhost:8080/baja/articulo/${id}`);
+      toast.success(response.data.message);
+      fetchData();
+    } catch (error) {
+      console.log(error)
+    }
   };
 
-  return (
-    <div className="container">
-      <h2 className="my-4">Artículos</h2>
-      <table className="table">
-        <thead>
-          <tr>
-            <th scope="col">Código</th>
-            <th scope="col">Nombre</th>
-            <th scope="col">Descripción</th>
-            <th scope="col">Precio</th>
-            <th scope="col">Fecha Baja</th>
-            <th scope="col">Costo de Almacenamiento</th>
-            <th scope="col">Tipo de articulo</th>
-            <th scope="col">Proveedor</th>
-            <th scope="col">Stock</th>
-            <th scope="col">Stock de Seguridad</th>
-            <th scope="col">Modelo de inventario</th>
-          </tr>
-        </thead>
-        <tbody>
-          {articulos.map(articulo => (
-            <tr key={articulo.codArticulo}>
-              <td>{articulo.codArticulo}</td>
-              <td>{articulo.nombre}</td>
-              <td>{articulo.descripcion}</td>
-              <td>{articulo.precio}</td>
-              <td>{formatDate(articulo.fechaBaja)}</td> {}
-              <td>{articulo.costoAlmacenamiento}</td>
-              <td>{articulo.tipoArticulo.nombre}</td>
-              <td>{articulo.proveedor.nombre}</td>
-              <td>{articulo.inventario.stock}</td>
-              <td>{articulo.inventario.stockSeguridad}</td>
-              <td>{articulo.inventario.modelo}</td>
-              <td>
-                <button
-                  className="btn btn-danger"
-                  onClick={() => bajaArticulo(articulo.codArticulo)}
-                  disabled={articulo.fechaBaja !== null}
-                >
-                  Dar de baja
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+  const toggleCreate = () => {
+    setShowCreate(!showCreate);
+  };
 
-      <div className="mt-3">
-        <Link to="/" className="btn btn-primary">Inicio</Link>
-      </div>
-    </div>
+  const toggleProveedor = () => {
+    setProveedor(!proveedor);
+  };
+
+  const toggleUpdate = () => {
+    setShowUpdate(!showUpdate);
+  };
+
+  const openNewSale = (idArticulo) => {
+    setNewSaleArticle(idArticulo);
+    setShowSales(true);
+  };
+ 
+  const totalPages = Math.ceil(filteredArticle.length / quantityPerPage);
+  const displayedArticles = filteredArticle.slice(
+    currentPage * quantityPerPage,
+    (currentPage + 1) * quantityPerPage
   );
-};
 
-export default ArticulosComponent;
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+  
+  const getPaginationButtons = () => {
+    const buttons = [];
+    let startPage = currentPage;
+  
+    if (currentPage + 4 > totalPages) {
+      startPage = totalPages - 4;
+    }
+  
+    startPage = Math.max(startPage, 0);
+  
+    for (let i = 0; i < totalPages; i++) { // Solo mostramos 5 botones de paginación
+      const pageNumber = startPage + i + 1;
+      buttons.push(
+        <button
+        key={i}
+        className={`btn btn-sm mx-1 ${
+          currentPage === pageNumber - 1
+            ? 'btn-primary'
+            : 'btn-secondary'
+        }`}
+        onClick={() => handlePageChange(pageNumber - 1)}
+        disabled={pageNumber > totalPages}
+      >
+          {pageNumber}
+        </button>
+      );
+    }
+    return buttons;
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    searchArticle(search, filter);
+  }, [search, filter]);
+
+  useEffect(() => {
+    fetchData();
+  }, [create, update]);
+
+
+  return (
+      <div className="container">
+          <div style={{ height: '80px' }}>
+
+          <div className="col-12 col-md-6">
+            <h1 className="text-center display-4 font-weight-bold mb-4">Artículos</h1>
+          </div>
+          <div className="d-flex align-items-center justify-content-end">
+          <SearchBar setSearch={setSearch} />
+
+            <div className="form-group d-flex flex-grow-1 ml-2">
+              <select
+                className="form-control"
+                onChange={(e) => setFilter(e.target.value)}
+              >
+                <option value="">Filtrar</option>
+                <option value="stock seguridad">Stock de Seguridad</option>
+                <option value="punto pedido">Punto de Pedido</option>
+              </select>
+            </div>
+          </div>
+        
+        <div className="">
+          {displayedArticles.map((articulo) => (
+            <Card
+              key={articulo.idArticulo}
+              articulo={articulo}
+              setIdArticulo={setIdArticulo}
+              deleteArticle={deleteArticle}
+              toggleUpdate={toggleUpdate}
+              toggleProveedor={toggleProveedor}
+              newSale={openNewSale}
+            />
+          ))}
+        </div>
+  
+        <div className="fixed-bottom d-flex justify-content-end m-3">
+          <button
+            className="btn btn-primary rounded-pill shadow-sm"
+            onClick={toggleCreate}
+          >
+            <AiFillAliwangwang className="me-2" /> Nuevo Artículo
+          </button>
+        </div>
+  
+        {showCreate && (
+          <CrearArticulo toggleCreate={toggleCreate}/>
+        )}
+        
+        
+        {proveedor && (
+          <AddArticuloProveedor toggleProveedor={toggleProveedor} id={idArticulo} />
+        )}
+  
+  
+        {showUpdate && (
+          <ActualizarArticulo toggleUpdate={toggleUpdate} id={idArticulo} />
+        )}
+         <div className='m-3 d-flex align-items-center justify-content-center'>
+          <BiLastPage
+            className={`w-6 h-6 ${
+              currentPage === 0 ? 'text-gray-300' : 'text-black cursor-pointer hover:text-black'
+            }`}
+            onClick={() => currentPage > 0 && handlePageChange(currentPage - 1)}
+          />
+          {getPaginationButtons()}
+          <BiLastPage
+            className={`w-6 h-6 ${
+              currentPage === totalPages - 1
+                ? 'text-gray-300'
+                : 'text-black cursor-pointer hover:text-black'
+            }`}
+            onClick={() =>
+              currentPage < totalPages - 1 && handlePageChange(currentPage + 1)
+            }
+          />
+  </div>  
+        {showSales && (
+          <CrearVenta setShowModal={setShowSales} id={newSaleArticle} />
+        )}
+      </div>
+      </div>
+    );
+  };
+
+export default Articulos;

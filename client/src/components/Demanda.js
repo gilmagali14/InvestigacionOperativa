@@ -37,7 +37,7 @@ const DemandaComponent = () => {
       const response = await axios.post('http://localhost:8080/calcular-demanda', demandaData);
       const demandaCalculada = response.data;
       setDemandaCalculada(demandaCalculada);
-      navigate(`/ventas/${idArticulo}/${demandaCalculada}`); // Usar navigate con state
+      navigate(`/crear/orden-de-compra/${demandaCalculada}`); 
     } catch (error) {
       console.error('Error al calcular la demanda:', error);
     }
@@ -77,9 +77,9 @@ const DemandaComponent = () => {
         </thead>
         <tbody>
           {articulos.map(articulo => (
-            <tr key={articulo.codArticulo}>
-              <td><input type="checkbox" onChange={() => handleArticuloSelection(articulo.codArticulo)} /></td>
-              <td>{articulo.codArticulo}</td>
+            <tr key={articulo.idArticulo}>
+              <td><input type="checkbox" onChange={() => handleArticuloSelection(articulo.idArticulo)} /></td>
+              <td>{articulo.idArticulo}</td>
               <td>{articulo.nombre}</td>
             </tr>
           ))}

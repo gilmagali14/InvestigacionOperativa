@@ -10,24 +10,21 @@ import java.util.List;
 
 public interface ArticuloVentaRepository extends JpaRepository<ArticuloVenta, Long> {
     @Query("SELECT av FROM ArticuloVenta av " +
-            "WHERE av.articulo.codArticulo = :articuloId " +
+            "WHERE av.articulo.idArticulo = :articuloId " +
             "AND av.fechaVenta BETWEEN :fechaDesde AND :fechaHasta " +
             "ORDER BY av.fechaVenta DESC")
     List<ArticuloVenta> findArticuloVentaByArticuloIdAndFechaVentaBetween(@Param("articuloId") Long articuloId,
                                                                           @Param("fechaDesde") String fechaDesde,
                                                                           @Param("fechaHasta") String fechaHasta);
 
-    @Query("SELECT av FROM ArticuloVenta av " +
-            "WHERE av.articulo.codArticulo = :articuloId " +
-            "AND av.fechaVenta >= :inicioMesActual " +
-            "AND av.fechaVenta < :inicioMesSiguiente")
-    List<ArticuloVenta> findByArticuloIdAndFechaVentaBetween(
-            @Param("articuloId") Long articuloId,
-            @Param("inicioMesActual") LocalDateTime inicioMesActual,
-            @Param("inicioMesSiguiente") LocalDateTime inicioMesSiguiente
+    @Query("SELECT av FROM ArticuloVenta av WHERE av.articulo.idArticulo = :articuloId " +
+            "AND av.fechaVenta >= :fechaInicio AND av.fechaVenta < :fechaFin")
+    List<ArticuloVenta> findByArticuloIdAndFechaVentaBetween(@Param("articuloId") Long articuloId,
+                                                             @Param("fechaInicio") String fechaInicio,
+                                                             @Param("fechaFin") String fechaFin
     );
 
-    @Query("SELECT av FROM ArticuloVenta av WHERE av.articulo.codArticulo = :articuloId ")
+    @Query("SELECT av FROM ArticuloVenta av WHERE av.articulo.idArticulo = :articuloId ")
     List<ArticuloVenta> findArticuloVentaByArticuloId(@Param("articuloId") Long articuloId);
 
 }

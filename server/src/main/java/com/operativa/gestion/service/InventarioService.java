@@ -1,63 +1,90 @@
 package com.operativa.gestion.service;
 
-import com.operativa.gestion.dto.LoteOptimoDTO;
-import com.operativa.gestion.model.Articulo;
-import com.operativa.gestion.model.ArticuloVenta;
-import com.operativa.gestion.model.Inventario;
-import com.operativa.gestion.model.repository.ArticuloRepository;
-import com.operativa.gestion.model.repository.ArticuloVentaRepository;
-import com.operativa.gestion.model.repository.InventarioRepository;
+import com.operativa.gestion.model.*;
+import com.operativa.gestion.model.repository.HistoricoDemandaRepository;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class InventarioService {
 
-    private final ArticuloRepository articuloRepository;
-    private final ArticuloVentaRepository articuloVentaRepository;
-    private final InventarioRepository inventarioRepository;
+    private final HistoricoDemandaRepository historicoDemandaRepository;
 
-    public InventarioService(ArticuloRepository articuloRepository, ArticuloVentaRepository articuloVentaRepository, InventarioRepository inventarioRepository) {
-        this.articuloRepository = articuloRepository;
-        this.articuloVentaRepository = articuloVentaRepository;
-        this.inventarioRepository = inventarioRepository;
+    public InventarioService(HistoricoDemandaRepository historicoDemandaRepository) {
+        this.historicoDemandaRepository = historicoDemandaRepository;
     }
 
-    public List<Inventario> obtenerInventarioPorModelo(String modelo) {
-        return inventarioRepository.findAllByModelo(modelo);
+    public Boolean menorQuePuntoPedido(int stock, double puntoPedido) {
+        return stock <= puntoPedido;
+    }
+    public ArticuloProveedor updateArticuloInventario(ArticuloProveedor articuloProveedor) {
+        int demandaAnual = getDemandaHistorica(articuloProveedor.getArticulo());
+        articuloProveedor.setLoteOptimo(calcularLoteOptimo(articuloProveedor.getArticulo(), articuloProveedor.getCostoPedido(),
+                articuloProveedor.getModelo(), demandaAnual));
+        articuloProveedor.setPuntoPedido(calcularPuntoPedido(articuloProveedor.getCostoPedido(), articuloProveedor.getModelo(),
+                articuloProveedor.getTiempoEntrega(), demandaAnual));
+        articuloProveedor.setStockSeguridad(calcularStockSeguridad(articuloProveedor.getArticulo(), articuloProveedor.getTiempoEntrega()));
+        return articuloProveedor;
     }
 
-    public BigDecimal calcularLoteOptimo(LoteOptimoDTO loteFijoDto) {
-        LocalDateTime fechaInicio = LocalDate.now().withDayOfMonth(1).atStartOfDay(); // Primer día del mes actual a las 00:00:00
-        LocalDateTime fechaFin = LocalDate.now().plusMonths(1).withDayOfMonth(1).atStartOfDay().minusSeconds(1); // Último día del mes actual a las 23:59:59
-
-        List<ArticuloVenta> articulos = articuloVentaRepository.findByArticuloIdAndFechaVentaBetween(
-                loteFijoDto.getIdArticulo(), fechaInicio, fechaFin);
-
-        BigDecimal demanda = BigDecimal.ZERO;
-        for (ArticuloVenta articuloVenta : articulos) {
-            demanda = demanda.add(BigDecimal.valueOf(articuloVenta.getCantidadArticulos()));
+    private int getDemandaHistorica(Articulo articulo) {
+        List<HistoricoDemanda> list = historicoDemandaRepository.findHistoricoDemandaByArticuloAndAño(articulo, LocalDate.now().getYear());
+        int sum = 0;
+        for (HistoricoDemanda historicoDemanda : list) {
+            sum += historicoDemanda.getCantidad();
         }
+        return sum;
+    }
 
-        Optional<Articulo> articuloOptional = articuloRepository.findById(loteFijoDto.getIdArticulo());
-        if (articuloOptional.isPresent()) {
-            Articulo articulo = articuloOptional.get();
-            BigDecimal costoAlmacenamiento = articulo.getCostoAlmacenamiento();
-            BigDecimal costoPedido = articulo.getProveedor().getCostoPedido();
-
-            BigDecimal dos = BigDecimal.valueOf(2);
-            BigDecimal costoPedidoDivididoCostoAlmacenamiento = costoPedido.divide(costoAlmacenamiento, 20, BigDecimal.ROUND_HALF_UP); // Ajustar la escala según sea necesario
-            BigDecimal raizCuadrada = dos.multiply(demanda).multiply(costoPedidoDivididoCostoAlmacenamiento).sqrt(new MathContext(20)); // Aquí se define la precisión
-
-            return raizCuadrada;
-        } else {
-            throw new RuntimeException("Artículo no encontrado con ID: " + loteFijoDto.getIdArticulo());
+    public double calcularLoteOptimo(Articulo articulo, double costoPedido, String modelo, int demandaAnual) {
+        double costoAlmacenamiento = articulo.getPrecio() * articulo.getTasaRotacion();
+        double costo = costoPedido / costoAlmacenamiento;
+        int loteOptimo = 0;
+        switch (modelo) {
+            case "lote-fijo":
+                loteOptimo = (int)Math.ceil(Math.sqrt(2*demandaAnual*costo));
+                break;
+            case "intervalo-fijo":
+                loteOptimo = articulo.getStock();
+                break;
         }
+        return loteOptimo > 0 ? loteOptimo : 0;
+    }
+
+    public Double calcularPuntoPedido(double costoPedido, String modelo, int tiempoEntrega, int demandaAnual) {
+        double puntoPedido = demandaAnual * costoPedido;
+        double demandaDiaria = demandaAnual / 245.0;
+        double desviacionEstandar = demandaDiaria * 0.05;
+        double z = 1.64;
+        switch (modelo) {
+            case "lote-fijo":
+                puntoPedido = demandaDiaria * costoPedido;
+                break;
+            case "intervalo-fijo":
+                puntoPedido = demandaDiaria * costoPedido +  z * desviacionEstandar * Math.sqrt(tiempoEntrega);
+                break;
+        }
+        return puntoPedido > 0 ? puntoPedido : 0;
+    }
+
+    public Double calcularCgi(Articulo articulo, double costoPedido, String modelo, int demandaAnual) {
+        double loteOptimo = calcularLoteOptimo(articulo, costoPedido, modelo, demandaAnual);
+        double purchaseCost = articulo.getPrecio() * loteOptimo;
+        double costoAlmacenamiento = articulo.getPrecio() * articulo.getTasaRotacion();
+        double storageCost =  costoAlmacenamiento* (loteOptimo / 2) ;
+        double orderCost = costoPedido * (demandaAnual / loteOptimo);
+        double cgi = purchaseCost + storageCost + orderCost;
+        return cgi > 0 ? cgi : 0;
+    }
+
+    public Double calcularStockSeguridad(Articulo articulo, int tiempoEntrega) {
+        int demandaAnual = getDemandaHistorica(articulo);
+        double demandaDiaria = demandaAnual / 245.0;
+        double desviacionEstandar = demandaDiaria * 0.05;
+        double z = 1.64;
+        double stockSeguridad = z * desviacionEstandar * Math.sqrt(tiempoEntrega);
+        return stockSeguridad > 0 ? stockSeguridad : 0;
     }
 }

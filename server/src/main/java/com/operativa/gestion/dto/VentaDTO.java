@@ -1,19 +1,21 @@
 package com.operativa.gestion.dto;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 public class VentaDTO {
 
-    private List<ArticuloVentaDTO> articulos;
+    private Long idArticulo;
+    private Integer cantidadArticulo;
+    private String fecha;
+    private String proveedor;
 
-    private String fechaVenta;
-
-    public String getFechaVenta() {
-        return fechaVenta;
+    public Long getIdArticulo() {
+        return idArticulo;
     }
 
-    public List<ArticuloVentaDTO> getArticulos() {
-        return articulos;
+    public Integer getCantidadArticulo() {
+        return cantidadArticulo;
+    }
+
+    public String getProveedor() {
+        return proveedor;
     }
 }
