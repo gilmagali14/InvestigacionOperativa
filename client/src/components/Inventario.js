@@ -1,92 +1,99 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect} from 'react';
 import axios from 'axios';
+import LoteFijo from '../components/LoteFijo';
+import IntervaloFijo from './IntervaloFijo';
+import { Link } from 'react-router-dom';
 
 const Inventario = () => {
     const [modeloGestion, setModeloGestion] = useState('');
-    const [articulos, setArticulos] = useState([]);
-    const [tipoArticulo, setTipoArticulo] = useState('');
-    const [articulosFiltrados, setArticulosFiltrados] = useState([]);
-    const navigate = useNavigate();
+    const [tipoArticulos, setTipoArticulos] = useState([]);
+    const [selectedTipoArticulo, setSelectedTipoArticulo] = useState('');
+    const [articulos, setArticulos] = useState(null);
 
     useEffect(() => {
-        if (tipoArticulo) {
-            const obtenerArticulos = async () => {
-                try {
-                    const response = await axios.get(`http://localhost:8080/articulos?tipo=${tipoArticulo}`);
-                    setArticulosFiltrados(response.data);
-                } catch (error) {
-                    console.error('Error al obtener los artículos:', error);
-                }
-            };
-            obtenerArticulos();
-        } else {
-            setArticulosFiltrados([]);
-        }
-    }, [tipoArticulo]);
+        obtenerTipoArticulos();
+    }, []);
 
-    const handleFormSubmit = async (e) => {
-        e.preventDefault();
-
+    const obtenerTipoArticulos = async () => {
         try {
-            const response = await axios.post('http://localhost:8080/articulos', { modeloGestion });
-            navigate('/inventario'); //
+            const response = await axios.get('http://localhost:8080/tipo-articulos');
+            setTipoArticulos(response.data);
         } catch (error) {
-            console.error('Error al enviar datos:', error);
+            console.error('Error al obtener tipos de artículos:', error);
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await axios.get(`http://localhost:8080/inventario/${modeloGestion}/${selectedTipoArticulo}`);
+            setArticulos(response.data);
+        } catch (error) {
+            console.error('Error al obtener los artículos:', error);
+        }
+    };
+
+    const renderComponente = () => {
+        if (!articulos) return null; // No renderizar hasta que haya datos
+
+        if (modeloGestion === "lote-fijo") {
+            return <LoteFijo articulos={articulos} />;
+        } else if (modeloGestion === "intervalo-fijo") {
+            return <IntervaloFijo articulos={articulos} />;
+        } else {
+            return null;
         }
     };
 
     return (
         <div className="container">
-            <form onSubmit={handleFormSubmit} className="w-50 mx-auto d-flex flex-column justify-content-center align-items-center vh-100">
-                <div className="mb-3 w-100">
-                    <label htmlFor="tipoArticulo" className="form-label">
-                        Seleccionar tipo de artículo
-                    </label>
-                    <select
-                        className="form-select"
-                        id="tipoArticulo"
-                        value={tipoArticulo}
-                        onChange={(e) => setTipoArticulo(e.target.value)}
-                        required
-                    >
-                        <option value="">Seleccionar tipo</option>
-                        <option value="Tipo1">Limpieza</option>
-                        <option value="Tipo2">Tecnología</option>
-                        <option value="Tipo3">Indumentaria</option>
-                    </select>
-                </div>
-                <div className="mb-3 w-100">
-                    <label htmlFor="modeloGestion" className="form-label">
-                        Seleccionar modelo de gestión de inventario
-                    </label>
-                    <select
-                        className="form-select"
-                        id="modeloGestion"
-                        value={modeloGestion}
-                        onChange={(e) => setModeloGestion(e.target.value)}
-                        required
-                    >
-                        <option value="">Seleccionar modelo</option>
-                        <option value="Modelo de Lote Fijo">Modelo de Lote Fijo</option>
-                        <option value="Modelo Intervalo Fijo">Modelo Intervalo Fijo</option>
-                    </select>
+            <form onSubmit={handleSubmit} style={{ maxWidth: '600px', margin: '0 auto' }}>
+                <div className='m-3'>
+                    <div className="mb-3">
+                        <label htmlFor="tipoArticulo" className="form-label">Tipo de Artículo</label>
+                        <select
+                            className="form-select"
+                            id="tipoArticulo"
+                            value={selectedTipoArticulo}
+                            onChange={(e) => setSelectedTipoArticulo(e.target.value)}
+                            required
+                        >
+                            <option value="">Seleccionar Tipo</option>
+                            {tipoArticulos.map((tipo) => (
+                                <option key={tipo.nombre} value={tipo.nombre}>
+                                    {tipo.nombre}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="modeloGestion" className="form-label">
+                            Seleccionar modelo de gestión de inventario
+                        </label>
+                        <select
+                            className="form-select"
+                            id="modeloGestion"
+                            value={modeloGestion}
+                            onChange={(e) => setModeloGestion(e.target.value)}
+                            required
+                        >
+                            <option value="">Seleccionar modelo</option>
+                            <option value="lote-fijo">Modelo de Lote Fijo</option>
+                            <option value="intervalo-fijo">Modelo Intervalo Fijo</option>
+                        </select>
+                    </div>
                 </div>
                 <button type="submit" className="btn btn-primary">
-                    Enviar
+                    Calcular
                 </button>
             </form>
 
-            <div className="w-50 mx-auto">
-                <h2>Lista de Artículos</h2>
-                <ul className="list-group">
-                    {articulosFiltrados.map((articulo) => (
-                        <li key={articulo.id} className="list-group-item">
-                            {articulo.nombre} - {articulo.tipoArticulo}
-                        </li>
-                    ))}
-                </ul>
+            <div className="mt-5">
+                {renderComponente()}
             </div>
+            <div className="mt-3">
+        <Link to="/" className="btn btn-primary">Inicio</Link>
+      </div>
         </div>
     );
 };

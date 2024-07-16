@@ -9,16 +9,9 @@ const VentasComponent = () => {
   
   useEffect(() => {
     const fetchVentas = async () => {
-      try {
-        const url = window.location.href; 
-        const parts = url.split('/ventas/'); 
-        const idArticuloFromUrl = parts[1].split('/')[0]; 
-        const demanda = parts[1].split('/')[1]; 
-        
-        setDemanda(demanda);
-        setIdArticulo(idArticuloFromUrl); 
-        
-        const response = await axios.get(`http://localhost:8080/ventas/${idArticuloFromUrl}`);
+      try {        
+        const response = await axios.get(`http://localhost:8080/ventas`);
+        console.log(response.data)
         setVentas(response.data); 
       } catch (error) {
         console.error('Error fetching ventas:', error);

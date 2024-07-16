@@ -1,17 +1,16 @@
 package com.operativa.gestion.controller;
 
-import com.operativa.gestion.dto.MostrarOrdenesDTO;
-import com.operativa.gestion.dto.OrdenDeCompraDTO;
+import com.operativa.gestion.dto.ArticuloOrdenCompraDTO;
+import com.operativa.gestion.model.OrdenCompraDetalle;
 import com.operativa.gestion.service.OrdenDeCompraService;
 
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @Controller
@@ -23,9 +22,8 @@ public class OrdenDeCompraController {
         this.ordenDeCompraService = ordenDeCompraService;
     }
 
-
     @PostMapping("/crear/orden")
-    public ResponseEntity<String> crear(@RequestBody OrdenDeCompraDTO ordenDeCompraDto) throws BadRequestException {
+    public ResponseEntity<String> crear(@RequestBody List<ArticuloOrdenCompraDTO> ordenDeCompraDto) {
         try {
             ordenDeCompraService.crearOrdenDeCompra(ordenDeCompraDto);
             return ResponseEntity.ok("Orden creada correctamente");
@@ -34,10 +32,14 @@ public class OrdenDeCompraController {
         }
     }
 
-    @GetMapping("/ordenes-de-compra")
-    public ResponseEntity<MostrarOrdenesDTO> obtenerOrdenes() {
+    @GetMapping("/ordenes")
+    public ResponseEntity<List<OrdenCompraDetalle>> obtenerOrdenes() {
         return ResponseEntity.ok(ordenDeCompraService.obtenerOrdenes());
-
     }
 
+    @PutMapping("/orden/{idOrden}/{estado}")
+    public ResponseEntity<List<OrdenCompraDetalle>> actualizarOrden(@PathVariable("idOrden") long idOrden,
+                                                                    @PathVariable("estado") String estado) {
+        return ResponseEntity.ok(ordenDeCompraService.actualizarOrden(idOrden, estado));
+    }
 }

@@ -2,9 +2,6 @@ package com.operativa.gestion.model;
 
 import jakarta.persistence.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
 @Entity
 public class ArticuloVenta {
 
@@ -23,6 +20,8 @@ public class ArticuloVenta {
     private Venta venta;
 
     String fechaVenta;
+
+    String pronostico;
 
     public ArticuloVenta() {
 

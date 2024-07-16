@@ -11,4 +11,8 @@ public interface OrdenCompraDetalleRepository extends JpaRepository<OrdenCompraD
 
     @Query("SELECT ocd FROM OrdenCompraDetalle ocd WHERE ocd.articulo.codArticulo = :articuloId")
     List<OrdenCompraDetalle> findByArticuloId(@Param("articuloId") Long articuloId);
+
+    @Query("SELECT ocd FROM OrdenCompraDetalle ocd WHERE ocd.articulo.codArticulo = :articuloId and " +
+            "ocd.ordenDeCompra.estadoOrdenDeCompra.nombreEstadoOrdenDeCompra = 'PENDIENTE'")
+    List<OrdenCompraDetalle> findByArticuloIdAndStatus(@Param("articuloId") Long articuloId);
 }

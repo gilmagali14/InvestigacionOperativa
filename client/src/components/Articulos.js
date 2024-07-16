@@ -22,8 +22,7 @@ const ArticulosComponent = () => {
     try {
       await axios.delete(`http://localhost:8080/baja/articulo/${idArticulo}`);
       const updatedArticulos = articulos.map(articulo =>
-        articulo.codArticulo === idArticulo ? { ...articulo, fechaBaja: new Date() } : articulo
-      );
+      articulo.codArticulo === idArticulo ? { ...articulo, fechaBaja: new Date() } : articulo);
       setArticulos(updatedArticulos);
     } catch (error) {
       console.error('Error al dar de baja artículo:', error);

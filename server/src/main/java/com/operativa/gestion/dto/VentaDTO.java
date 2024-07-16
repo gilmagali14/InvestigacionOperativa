@@ -1,6 +1,5 @@
 package com.operativa.gestion.dto;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public class VentaDTO {

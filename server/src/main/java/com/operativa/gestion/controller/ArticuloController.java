@@ -50,4 +50,9 @@ public class ArticuloController {
     public ResponseEntity<List<Articulo>> obtenerArticulos() {
         return ResponseEntity.status(HttpStatus.OK).body(articuloService.obtenerArticulos());
     }
+
+    @GetMapping("/articulo/{id}")
+    public ResponseEntity<Articulo> obtenerArticuloPorId(@PathVariable("id") long idArticulo) {
+        return ResponseEntity.status(HttpStatus.OK).body(articuloService.obtenerArticuloPorId(idArticulo));
+    }
 }

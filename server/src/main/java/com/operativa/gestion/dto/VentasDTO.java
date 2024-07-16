@@ -1,14 +1,23 @@
 package com.operativa.gestion.dto;
 
+import com.operativa.gestion.model.Articulo;
 import com.operativa.gestion.model.Venta;
 
-import java.time.LocalDateTime;
 
 public class VentasDTO {
 
     Venta venta;
     String fechaVenta;
     Long cantidadArticulos;
+    Articulo articulo;
+
+    public Articulo getArticulo() {
+        return articulo;
+    }
+
+    public void setArticulo(Articulo articulo) {
+        this.articulo = articulo;
+    }
 
     public Venta getVenta() {
         return venta;

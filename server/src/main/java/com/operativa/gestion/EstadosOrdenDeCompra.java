@@ -1,7 +1,7 @@
 package com.operativa.gestion;
 
 public enum EstadosOrdenDeCompra {
-    CREADA,
-    MODIFICADA,
+    PENDIENTE,
+    ACEPTADA,
     CERRADA
 }

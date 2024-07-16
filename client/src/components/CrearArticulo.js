@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -62,8 +62,12 @@ const CrearArticulo = () => {
   };
 
   return (
+    <div>
     <div className="container-fluid d-flex justify-content-center align-items-center vh-100">
       <div className="p-5 m-5 bg-light">
+        <div className="container-fluid d-flex justify-content-center align-items-center m-3">
+      <h4 className='mb-3'>Crear Articulo</h4>
+</div>
         <form onSubmit={handleSubmit}>
           <div className="row mb-3">
             <div className="col-md-6">
@@ -184,8 +188,8 @@ const CrearArticulo = () => {
                     required
                 >
                     <option value="">Seleccionar modelo</option>
-                    <option value="Modelo de Lote Fijo">Modelo de Lote Fijo</option>
-                    <option value="Modelo Intervalo Fijo">Modelo Intervalo Fijo</option>
+                    <option value="lote-fijo">Modelo de Lote Fijo</option>
+                    <option value="intervalo-fijo">Modelo Intervalo Fijo</option>
                 </select>
           </div>
           <div className="row">
@@ -195,7 +199,13 @@ const CrearArticulo = () => {
           </div>
         </form>
       </div>
+      </div>
+
+    <div>
+        <Link to="/" className="btn btn-primary">Inicio</Link>
+      </div>
     </div>
+
   );
 };
 

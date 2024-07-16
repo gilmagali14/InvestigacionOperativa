@@ -26,10 +26,6 @@ public class OrdenDeCompra {
     @JoinColumn(name = "codEstadoOrdenDeCompra", nullable = false)
     private EstadoOrdenDeCompra estadoOrdenDeCompra;
 
-    public List<OrdenCompraDetalle> getOrdenesCompraDetalle() {
-        return ordenesCompraDetalle;
-    }
-
     public void setOrdenesCompraDetalle(List<OrdenCompraDetalle> ordenesCompraDetalle) {
         this.ordenesCompraDetalle = ordenesCompraDetalle;
     }

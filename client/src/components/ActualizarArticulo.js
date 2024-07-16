@@ -17,10 +17,12 @@ const ActualizarArticulo = () => {
   const [stockSeguridad, setStockSeguridad] = useState(0); 
   const [modeloGestion, setModeloGestion] = useState('');  
   const [idArticulo, setIdArticulo] = useState(null); 
+  const [articulos, setArticulos] = useState([]);
 
   useEffect(() => {
     obtenerTipoArticulos();
     obtenerProveedores();
+    fetchData();
   }, []);
 
   const obtenerTipoArticulos = async () => {
@@ -41,217 +43,221 @@ const ActualizarArticulo = () => {
     }
   };
 
+  const fetchData = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/articulos');
+      const data = await response.json();
+      setArticulos(data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  const handleArticuloSelection = (id) => {
+    // Buscar el artículo seleccionado por su id
+    const articuloSeleccionado = articulos.find(articulo => articulo.codArticulo === id);
+
+    // Actualizar los estados con la información del artículo seleccionado
+    setIdArticulo(id);
+    setNombre(articuloSeleccionado.nombre);
+    setDescripcion(articuloSeleccionado.descripcion);
+    setPrecio(articuloSeleccionado.precio);
+    setCostoAlmacenamiento(articuloSeleccionado.costoAlmacenamiento);
+    setSelectedTipoArticulo(articuloSeleccionado.tipoArticulo.nombre);
+    setSelectedProveedor(articuloSeleccionado.proveedor.nombre);
+    setStock(articuloSeleccionado.inventario.stock);
+    setStockSeguridad(articuloSeleccionado.inventario.stockSeguridad);
+    setModeloGestion(articuloSeleccionado.inventario.modelo);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        const body = {
-            id: idArticulo,
-            nombre,
-            descripcion,
-            nombreTipoArticulo: selectedTipoArticulo,
-            nombreProveedor: selectedProveedor,
-            precio,
-            costoAlmacenamiento,
-            stock,
-            stockSeguridad,
-            modelo: modeloGestion
-        }
-        console.log(body )
-        const response = await axios.put('http://localhost:8080/actualizar/articulo', body);
-        navigate('/articulos');
-        console.log(response.data);
+      const body = {
+        id: idArticulo,
+        nombre,
+        descripcion,
+        nombreTipoArticulo: selectedTipoArticulo,
+        nombreProveedor: selectedProveedor,
+        precio,
+        costoAlmacenamiento,
+        stock,
+        stockSeguridad,
+        modelo: modeloGestion
+      };
+
+      const response = await axios.put('http://localhost:8080/actualizar/articulo', body);
+      navigate('/articulos');
+      console.log(response.data);
     } catch (error) {
-      console.error('Error al crear el artículo:', error);
+      console.error('Error al actualizar el artículo:', error);
     }
-  };
-  
-  const [articulos, setArticulos] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-      
-        const response = await fetch('http://localhost:8080/articulos');
-        const data = await response.json();
-        setArticulos(data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    
-    fetchData();
-  }, []);
-
-  const handleArticuloSelection = (id) => {
-    setIdArticulo(id);
   };
 
   return (
     <div className="container-fluid d-flex justify-content-center align-items-start vh-100">
       <div className="p-5 m-5 bg-light">
-      <table className="table">
-      <thead>
-          <tr>
-            <th scope="col">Código</th>
-            <th scope="col">Nombre</th>
-            <th scope="col">Descripción</th>
-            <th scope="col">Precio</th>
-            <th scope="col">Tipo de articulo</th>
-            <th scope="col">Proveedor</th>
-            <th scope="col">Stock</th>
-            <th scope="col">Stock de Seguridad</th>
-            <th scope="col">Modelo de inventario</th>
-          </tr>
-        </thead>
-        <tbody>
-          {articulos.map(articulo => (
-            <tr key={articulo.codArticulo}>
-                <td><input type="checkbox" onChange={() => handleArticuloSelection(articulo.codArticulo)} /></td>
-              <td>{articulo.nombre}</td>
-              <td>{articulo.descripcion}</td>
-              <td>{articulo.precio}</td>
-              <td>{articulo.tipoArticulo.nombre}</td>
-              <td>{articulo.proveedor.nombre}</td>
-              <td>{articulo.inventario.stock}</td>
-              <td>{articulo.inventario.stockSeguridad}</td>
-              <td>{articulo.inventario.modelo}</td>
+        <table className="table">
+          <thead>
+            <tr>
+              <th scope="col">Código</th>
+              <th scope="col">Nombre</th>
+              <th scope="col">Descripción</th>
+              <th scope="col">Precio</th>
+              <th scope="col">Tipo de artículo</th>
+              <th scope="col">Proveedor</th>
+              <th scope="col">Stock</th>
+              <th scope="col">Stock de Seguridad</th>
+              <th scope="col">Modelo de inventario</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      {idArticulo !== null && ( // Mostrar el formulario solo si se ha seleccionado un artículo
-        <form onSubmit={handleSubmit}>   
-        <div>       
-          <div className="col-md-6">
-              <label htmlFor="nombre" className="form-label">Nombre</label>
-              <input
-                type="text"
-                className="form-control"
-                id="nombre"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                required
-              />
+          </thead>
+          <tbody>
+            {articulos.map(articulo => (
+              <tr key={articulo.codArticulo}>
+                <td><input type="checkbox" onChange={() => handleArticuloSelection(articulo.codArticulo)} /></td>
+                <td>{articulo.nombre}</td>
+                <td>{articulo.descripcion}</td>
+                <td>{articulo.precio}</td>
+                <td>{articulo.tipoArticulo.nombre}</td>
+                <td>{articulo.proveedor.nombre}</td>
+                <td>{articulo.inventario.stock}</td>
+                <td>{articulo.inventario.stockSeguridad}</td>
+                <td>{articulo.inventario.modelo}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {idArticulo !== null && (
+          <form onSubmit={handleSubmit}>
+            <div className="row mb-3">
+              <div className="col-md-6">
+                <label htmlFor="nombre" className="form-label">Nombre</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="nombre"
+                  value={nombre}
+                  onChange={(e) => setNombre(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="col-md-6">
+                <label htmlFor="precio" className="form-label">Precio</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  id="precio"
+                  value={precio}
+                  onChange={(e) => setPrecio(parseFloat(e.target.value))}
+                  required
+                />
+              </div>
             </div>
-            <div className="col-md-6">
-              <label htmlFor="precio" className="form-label">Precio</label>
-              <input
-                type="number"
-                className="form-control"
-                id="precio"
-                value={precio}
-                onChange={(e) => setPrecio(parseFloat(e.target.value))}
-                required
-              />
+            <div className="row mb-3">
+              <div className="col-md-6">
+                <label htmlFor="descripcion" className="form-label">Descripción</label>
+                <textarea
+                  className="form-control"
+                  id="descripcion"
+                  value={descripcion}
+                  onChange={(e) => setDescripcion(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="col-md-6">
+                <label htmlFor="costoAlmacenamiento" className="form-label">Costo de Almacenamiento</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  id="costoAlmacenamiento"
+                  value={costoAlmacenamiento}
+                  onChange={(e) => setCostoAlmacenamiento(parseFloat(e.target.value))}
+                  required
+                />
+              </div>
             </div>
-          </div>
-          <div className="row mb-3">
-            <div className="col-md-6">
-              <label htmlFor="descripcion" className="form-label">Descripción</label>
-              <textarea
-                className="form-control"
-                id="descripcion"
-                value={descripcion}
-                onChange={(e) => setDescripcion(e.target.value)}
-                required
-              />
-            </div>
-            <div className="col-md-6">
-              <label htmlFor="costoAlmacenamiento" className="form-label">Costo de Almacenamiento</label>
-              <input
-                type="number"
-                className="form-control"
-                id="costoAlmacenamiento"
-                value={costoAlmacenamiento}
-                onChange={(e) => setCostoAlmacenamiento(parseFloat(e.target.value))}
-                required
-              />
-            </div>
-          </div>
-          <div className="row mb-3">
-            <div className="col-md-6">
-              <label htmlFor="tipoArticulo" className="form-label">Tipo de Artículo</label>
-              <select
-                className="form-select"
-                id="tipoArticulo"
-                value={selectedTipoArticulo}
-                onChange={(e) => setSelectedTipoArticulo(e.target.value)}
-                required
-              >
-                <option value="">Seleccionar Tipo</option>
-                {tipoArticulos.map((tipo) => (
-                  <option key={tipo.nombre} value={tipo.nombre}>
-                    {tipo.nombre}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="col-md-6">
-              <label htmlFor="proveedor" className="form-label">Proveedor</label>
-              <select
-                className="form-select"
-                id="proveedor"
-                value={selectedProveedor}
-                onChange={(e) => setSelectedProveedor(e.target.value)}
-                required
-              >
-                <option value="">Seleccionar Proveedor</option>
-                {proveedores.map((prov) => (
-                  <option key={prov.nombre} value={prov.nombre}>
-                    {prov.nombre}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <div className="row mb-3">
-            <div className="col-md-6">
-              <label htmlFor="stock" className="form-label">Stock</label>
-              <input
-                type="number"
-                className="form-control"
-                id="stock"
-                value={stock}
-                onChange={(e) => setStock(parseInt(e.target.value))}
-                required
-              />
-            </div>
-          </div>
-          <div className="col-md-6">
-            <label htmlFor="stockSeguridad" className="form-label">Stock de Seguridad</label>
-            <input
-              type="number"
-              className="form-control"
-              id="stockSeguridad"
-              value={stockSeguridad}
-              onChange={(e) => setStockSeguridad(parseInt(e.target.value))}
-              required
-            />
-          </div>
-          <div className="mb-3 w-100">
-            <label htmlFor="modeloGestion" className="form-label">
-              Seleccionar modelo de gestión de inventario
-                </label>
+            <div className="row mb-3">
+              <div className="col-md-6">
+                <label htmlFor="tipoArticulo" className="form-label">Tipo de Artículo</label>
                 <select
-                    className="form-select"
-                    id="modeloGestion"
-                    value={modeloGestion}
-                    onChange={(e) => setModeloGestion(e.target.value)}
-                    required
+                  className="form-select"
+                  id="tipoArticulo"
+                  value={selectedTipoArticulo}
+                  onChange={(e) => setSelectedTipoArticulo(e.target.value)}
+                  required
                 >
-                    <option value="">Seleccionar modelo</option>
-                    <option value="Modelo de Lote Fijo">Modelo de Lote Fijo</option>
-                    <option value="Modelo Intervalo Fijo">Modelo Intervalo Fijo</option>
+                  <option value="">Seleccionar Tipo</option>
+                  {tipoArticulos.map((tipo) => (
+                    <option key={tipo.nombre} value={tipo.nombre}>
+                      {tipo.nombre}
+                    </option>
+                  ))}
                 </select>
-          </div>
-          <div className="row">
-            <div className="col-md-12">
-              <button type="submit" className="btn btn-primary">Crear Artículo</button>
+              </div>
+              <div className="col-md-6">
+                <label htmlFor="proveedor" className="form-label">Proveedor</label>
+                <select
+                  className="form-select"
+                  id="proveedor"
+                  value={selectedProveedor}
+                  onChange={(e) => setSelectedProveedor(e.target.value)}
+                  required
+                >
+                  <option value="">Seleccionar Proveedor</option>
+                  {proveedores.map((prov) => (
+                    <option key={prov.nombre} value={prov.nombre}>
+                      {prov.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-          </div>
-        </form>
-      )}
-</div>
+            <div className="row mb-3">
+              <div className="col-md-6">
+                <label htmlFor="stock" className="form-label">Stock</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  id="stock"
+                  value={stock}
+                  onChange={(e) => setStock(parseInt(e.target.value))}
+                  required
+                />
+              </div>
+              <div className="col-md-6">
+                <label htmlFor="stockSeguridad" className="form-label">Stock de Seguridad</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  id="stockSeguridad"
+                  value={stockSeguridad}
+                  onChange={(e) => setStockSeguridad(parseInt(e.target.value))}
+                  required
+                />
+              </div>
+            </div>
+            <div className="mb-3 w-100">
+              <label htmlFor="modeloGestion" className="form-label">Seleccionar modelo de gestión de inventario</label>
+              <select
+                className="form-select"
+                id="modeloGestion"
+                value={modeloGestion}
+                onChange={(e) => setModeloGestion(e.target.value)}
+                required
+              >
+                <option value="">Seleccionar modelo</option>
+                <option value="lote-fijo">Modelo de Lote Fijo</option>
+                <option value="intervalo-fijo">Modelo Intervalo Fijo</option>
+              </select>
+            </div>
+            <div className="row">
+              <div className="col-md-12">
+                <button type="submit" className="btn btn-primary">Actualizar Artículo</button>
+              </div>
+            </div>
+          </form>
+        )}
+      </div>
     </div>
   );
 };

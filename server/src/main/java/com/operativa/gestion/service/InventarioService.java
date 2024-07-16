@@ -1,63 +1,111 @@
 package com.operativa.gestion.service;
 
-import com.operativa.gestion.dto.LoteOptimoDTO;
+import com.operativa.gestion.dto.DemandaDto;
 import com.operativa.gestion.model.Articulo;
-import com.operativa.gestion.model.ArticuloVenta;
-import com.operativa.gestion.model.Inventario;
+import com.operativa.gestion.model.OrdenCompraDetalle;
 import com.operativa.gestion.model.repository.ArticuloRepository;
-import com.operativa.gestion.model.repository.ArticuloVentaRepository;
-import com.operativa.gestion.model.repository.InventarioRepository;
+import com.operativa.gestion.model.repository.OrdenCompraDetalleRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class InventarioService {
 
+    private final static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final ArticuloRepository articuloRepository;
-    private final ArticuloVentaRepository articuloVentaRepository;
-    private final InventarioRepository inventarioRepository;
+    private final OrdenCompraDetalleRepository ordenDeCompraRespository;
+    private final DemandaService demandaService;
 
-    public InventarioService(ArticuloRepository articuloRepository, ArticuloVentaRepository articuloVentaRepository, InventarioRepository inventarioRepository) {
+    public InventarioService(ArticuloRepository articuloRepository, OrdenCompraDetalleRepository ordenDeCompraRespository,
+                             DemandaService demandaService) {
         this.articuloRepository = articuloRepository;
-        this.articuloVentaRepository = articuloVentaRepository;
-        this.inventarioRepository = inventarioRepository;
+        this.ordenDeCompraRespository = ordenDeCompraRespository;
+        this.demandaService = demandaService;
     }
 
-    public List<Inventario> obtenerInventarioPorModelo(String modelo) {
-        return inventarioRepository.findAllByModelo(modelo);
+    public List<Articulo> obtenerInventarioPorModelo(String modelo, String tipoArticulo) {
+        return articuloRepository.findByTipoArticuloAndModeloInventario(tipoArticulo, modelo);
     }
 
-    public BigDecimal calcularLoteOptimo(LoteOptimoDTO loteFijoDto) {
-        LocalDateTime fechaInicio = LocalDate.now().withDayOfMonth(1).atStartOfDay(); // Primer día del mes actual a las 00:00:00
-        LocalDateTime fechaFin = LocalDate.now().plusMonths(1).withDayOfMonth(1).atStartOfDay().minusSeconds(1); // Último día del mes actual a las 23:59:59
+    public BigDecimal calcularLoteOptimo(Articulo articulo) {
+        LocalDate fechaActual = LocalDate.now();
+        String fechaInicio = fechaActual.minusMonths(3).format(formatter);
+        String fechaFin = fechaActual.format(formatter);
 
-        List<ArticuloVenta> articulos = articuloVentaRepository.findByArticuloIdAndFechaVentaBetween(
-                loteFijoDto.getIdArticulo(), fechaInicio, fechaFin);
+        BigDecimal demanda = demandaService.calcularDemanda(new DemandaDto(fechaInicio, fechaFin,articulo.getCodArticulo()));
+        BigDecimal costoAlmacenamiento = articulo.getCostoAlmacenamiento();
+        BigDecimal costoPedido = articulo.getProveedor().getCostoPedido();
 
-        BigDecimal demanda = BigDecimal.ZERO;
-        for (ArticuloVenta articuloVenta : articulos) {
-            demanda = demanda.add(BigDecimal.valueOf(articuloVenta.getCantidadArticulos()));
+        BigDecimal dos = BigDecimal.valueOf(2);
+        BigDecimal costoPedidoDivididoCostoAlmacenamiento = costoPedido.divide(costoAlmacenamiento);
+        BigDecimal raizCuadrada = dos.multiply(demanda).multiply(costoPedidoDivididoCostoAlmacenamiento).sqrt(new MathContext(20));
+
+        return raizCuadrada;
+    }
+
+    public BigDecimal calcularPuntoPedido(Articulo articulo) {
+        LocalDate fechaActual = LocalDate.now();
+        String fechaInicio = fechaActual.minusMonths(3).format(formatter);
+        String fechaFin = fechaActual.format(formatter);
+
+        BigDecimal demanda = demandaService.calcularDemanda(new DemandaDto(fechaInicio, fechaFin, articulo.getCodArticulo()));
+        BigDecimal demandaDiaria = demanda.divide(BigDecimal.valueOf(30), RoundingMode.HALF_UP);
+        Long tiempoDemora = articulo.getProveedor().getTiempoDemora();
+
+        BigDecimal resultado = BigDecimal.valueOf(0);
+
+        resultado = resultado.add(BigDecimal.valueOf(tiempoDemora).multiply(demandaDiaria));
+
+        return resultado;
+    }
+
+    public BigDecimal calcularCgi(Articulo articulo) {
+        LocalDate fechaActual = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String fechaInicio = fechaActual.minusMonths(3).format(formatter);
+        String fechaFin = fechaActual.format(formatter);
+
+        BigDecimal demanda = demandaService.calcularDemanda(new DemandaDto(fechaInicio, fechaFin, articulo.getCodArticulo()));
+
+        BigDecimal loteOptimo = calcularLoteOptimo(articulo);
+
+        BigDecimal multiploUno = demanda.divide(loteOptimo, 2, RoundingMode.HALF_UP)
+                .multiply(articulo.getProveedor().getCostoPedido());
+
+        BigDecimal multiploDos = loteOptimo.divide(BigDecimal.valueOf(2), 2, RoundingMode.HALF_UP)
+                .multiply(articulo.getCostoAlmacenamiento());
+
+        BigDecimal multiploTres = articulo.getPrecio().multiply(demanda);
+
+        return multiploUno.add(multiploDos).add(multiploTres);
+    }
+
+    public List<Articulo> articulosReponer(String modeloInventario, String tipoArticulo) {
+     List<Articulo> articulosReponer = new ArrayList<>();
+     for (Articulo articulo : articuloRepository.findByTipoArticuloAndModeloInventario(tipoArticulo, modeloInventario)) {
+         List<OrdenCompraDetalle> ordenDeCompra = ordenDeCompraRespository.findByArticuloIdAndStatus(articulo.getCodArticulo());
+
+         if(articulo.getInventario().getStock() <= calcularPuntoPedido(articulo).intValue() && ordenDeCompra.isEmpty()) {
+             articulosReponer.add(articulo);
+         }
+     }
+        return articulosReponer;
+    }
+
+    public List<Articulo> articulosFaltantes(String modeloInventario, String tipoArticulo) {
+        List<Articulo> articulosFaltantes = new ArrayList<>();
+        for (Articulo articulo : articuloRepository.findByTipoArticuloAndModeloInventario(tipoArticulo, modeloInventario)) {
+            if(articulo.getInventario().getStock() <= articulo.getInventario().getStockSeguridad()) {
+                articulosFaltantes.add(articulo);
+            }
         }
-
-        Optional<Articulo> articuloOptional = articuloRepository.findById(loteFijoDto.getIdArticulo());
-        if (articuloOptional.isPresent()) {
-            Articulo articulo = articuloOptional.get();
-            BigDecimal costoAlmacenamiento = articulo.getCostoAlmacenamiento();
-            BigDecimal costoPedido = articulo.getProveedor().getCostoPedido();
-
-            BigDecimal dos = BigDecimal.valueOf(2);
-            BigDecimal costoPedidoDivididoCostoAlmacenamiento = costoPedido.divide(costoAlmacenamiento, 20, BigDecimal.ROUND_HALF_UP); // Ajustar la escala según sea necesario
-            BigDecimal raizCuadrada = dos.multiply(demanda).multiply(costoPedidoDivididoCostoAlmacenamiento).sqrt(new MathContext(20)); // Aquí se define la precisión
-
-            return raizCuadrada;
-        } else {
-            throw new RuntimeException("Artículo no encontrado con ID: " + loteFijoDto.getIdArticulo());
-        }
+        return articulosFaltantes;
     }
 }

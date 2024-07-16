@@ -37,7 +37,7 @@ const DemandaComponent = () => {
       const response = await axios.post('http://localhost:8080/calcular-demanda', demandaData);
       const demandaCalculada = response.data;
       setDemandaCalculada(demandaCalculada);
-      navigate(`/ventas/${idArticulo}/${demandaCalculada}`); // Usar navigate con state
+      navigate(`/crear/orden-de-compra/${demandaCalculada}`); 
     } catch (error) {
       console.error('Error al calcular la demanda:', error);
     }
