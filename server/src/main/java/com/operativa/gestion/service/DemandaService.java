@@ -1,14 +1,11 @@
 package com.operativa.gestion.service;
 
-import com.operativa.gestion.dto.DemandaDto;
+import com.operativa.gestion.dto.*;
 import com.operativa.gestion.model.*;
 import com.operativa.gestion.model.repository.*;
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -18,13 +15,19 @@ public class DemandaService {
     private final OrdenDeCompraService ordenDeCompraService;
     private final DemandaRepository demandaRepository;
     private final HistoricoDemandaRepository historicoDemandaRepository;
+    private final ParametrosRepository parametrosRepository;
+    private final PrediccionDemandaRepository prediccionDemandaRepository;
+    private final ProximoPeriodoPrediccionRepository proximoPeriodoPrediccionRepository;
 
     public DemandaService(ArticuloRepository articuloRepository, OrdenDeCompraService ordenDeCompraService,
-                          DemandaRepository demandaRepository, HistoricoDemandaRepository historicoDemandaRepository) {
+                          DemandaRepository demandaRepository, HistoricoDemandaRepository historicoDemandaRepository, ParametrosRepository parametrosRepository, PrediccionDemandaRepository prediccionDemandaRepository, ProximoPeriodoPrediccionRepository proximoPeriodoPrediccionRepository) {
         this.articuloRepository = articuloRepository;
         this.ordenDeCompraService = ordenDeCompraService;
         this.demandaRepository = demandaRepository;
         this.historicoDemandaRepository = historicoDemandaRepository;
+        this.parametrosRepository = parametrosRepository;
+        this.prediccionDemandaRepository = prediccionDemandaRepository;
+        this.proximoPeriodoPrediccionRepository = proximoPeriodoPrediccionRepository;
     }
 
     public BigDecimal calcularDemandaAnual(DemandaDto demandaDto) {
@@ -51,30 +54,6 @@ public class DemandaService {
         return demanda.divide(BigDecimal.valueOf(sumaPeso), 2, BigDecimal.ROUND_HALF_UP);
     }
 
-
-    public String validarStock(Long idArticulo) throws BadRequestException {
-        Optional<Articulo> articulo = articuloRepository.findById(idArticulo);
-        DemandaDto demandaDto = new DemandaDto();
-        demandaDto.setIdArticulo(idArticulo);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        demandaDto.setFechaDesde(LocalDateTime.now().minusMonths(3).format(formatter));
-        demandaDto.setFechaHasta(LocalDateTime.now().format(formatter));
-        //int demanda = calcularDemanda(demandaDto).intValue();
-
-/*        if(articulo.get().getInventario().getStock() <= (demanda)) {
-
-            long cantidadFinal = demanda - articulo.get().getInventario().getStock();
-            ArticuloOrdenCompraDTO articuloOrdenCompraDTO = new ArticuloOrdenCompraDTO(idArticulo, (int) cantidadFinal);
-
-            List<ArticuloOrdenCompraDTO> articuloOrdenCompraDTOS = new ArrayList<>();
-            articuloOrdenCompraDTOS.add(articuloOrdenCompraDTO);
-            ordenDeCompraService.crearOrdenDeCompra(articuloOrdenCompraDTOS);
-            return "Orden de compra creada";
-        } else {
-            return "No hace falta la orden de compra";
-        }*/
-        return "";
-    }
 
     public List<Demanda> obtenerDemandas() {
         return demandaRepository.findAll();
@@ -108,6 +87,50 @@ public class DemandaService {
         lista.add(total);
         return lista;
     }
+
+    public Collection<PrediccionDemandaModeloDTO> obtenerModelos(Long id, Boolean family) throws Exception {
+        List<PrediccionDemandaModeloDTO> ret = new ArrayList<>();
+        HashMap<String, Integer> nums = new HashMap<>();
+        Articulo articulo = articuloRepository.findById(id).get();
+
+        for (PrediccionDemanda modelo : prediccionDemandaRepository.findByArticulo(articulo)) {
+            String type = modelo.getTipoModeloPrediccionDemanda().getTipoModeloPrediccionDemandaNombre();
+
+            if(!nums.containsKey(type)) {
+                nums.put(type, 1);
+            }
+            Integer currentNum = nums.get(type);
+            PrediccionDemandaModeloDTO dto = new PrediccionDemandaModeloDTO();
+            dto.setId(modelo.getIdPrediccionDemanda());
+            dto.setType(modelo.getTipoModeloPrediccionDemanda().getTipoModeloPrediccionDemandaNombre());
+            dto.setColor(modelo.getPrediccionDemandaColor());
+            dto.setNum(currentNum);
+
+            nums.replace(type, currentNum + 1);
+
+            switch (type) {
+                case "PMP":
+                    dto.setPonderations(((PMPModeloPrediccion)modelo).getPonderations());
+                    break;
+                case "PMSE":
+                    dto.setAlpha(((PMSEModeloPrediccion)modelo).getAlpha());
+                    dto.setRoot(((PMSEModeloPrediccion)modelo).getRoot());
+                    break;
+                case "RL":
+                    dto.setIgnorePeriods(((RLModeloPrediccion)modelo).getIgnorePeriods());
+                    break;
+                case "Ix":
+                    dto.setLength(((IxModeloPrediccion)modelo).getLength());
+                    dto.setExpectedDemand(((IxModeloPrediccion)modelo).getExpectedDemand());
+                    break;
+                default:
+                    throw new Exception("Tipo de modelo no soportado");
+            }
+            ret.add(dto);
+        }
+        return ret;
+    }
+
 
 }
 

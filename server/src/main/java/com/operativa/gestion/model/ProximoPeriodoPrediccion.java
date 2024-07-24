@@ -3,25 +3,27 @@ package com.operativa.gestion.model;
 import jakarta.persistence.*;
 
 @Entity
-public class HistoricoDemanda {
+public class ProximoPeriodoPrediccion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idDemanda;
+    private Long proximoPeriodoPrediccionId;
     private Integer año;
     private Integer mes;
-    private Integer cantidad ;
-
     @ManyToOne
     @JoinColumn(name = "idArticulo", nullable = false)
     private Articulo articulo;
+    private Integer cantidad;
+    @ManyToOne
+    @JoinColumn(name = "idArticulo", nullable = false)
+    private PrediccionDemanda prediccionDemanda;
 
-    public Long getIdDemanda() {
-        return idDemanda;
+    public Long getProximoPeriodoPrediccionId() {
+        return proximoPeriodoPrediccionId;
     }
 
-    public void setIdDemanda(Long idDemanda) {
-        this.idDemanda = idDemanda;
+    public void setProximoPeriodoPrediccionId(Long proximoPeriodoPrediccionId) {
+        this.proximoPeriodoPrediccionId = proximoPeriodoPrediccionId;
     }
 
     public Integer getAño() {
@@ -56,7 +58,11 @@ public class HistoricoDemanda {
         this.cantidad = cantidad;
     }
 
-    public HistoricoDemanda() {
+    public PrediccionDemanda getPrediccionDemanda() {
+        return prediccionDemanda;
+    }
+
+    public void setPrediccionDemanda(PrediccionDemanda prediccionDemanda) {
+        this.prediccionDemanda = prediccionDemanda;
     }
 }
-
