@@ -224,7 +224,7 @@ const Articulos = () => {
             onClick={() =>
               currentPage < totalPages - 1 && handlePageChange(currentPage + 1)
             }
-          />
+          />)
   </div>  
         {showSales && (
           <CrearVenta setShowModal={setShowSales} id={newSaleArticle} />

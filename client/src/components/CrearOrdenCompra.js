@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
 
 const CrearOrdenCompra = () => {
 
   const [idArticulo, setIdArticulo] = useState(null); 
   const [demanda, setDemanda] = useState(null); 
-
   const [articulos, setArticulos] = useState([]);
 
   useEffect(() => {

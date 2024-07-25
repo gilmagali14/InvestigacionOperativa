@@ -5,7 +5,7 @@ import CrearArticulo from './components/CrearArticulo';
 import CrearOrdenCompra from './components/CrearOrdenCompra';
 import Demanda from './components/Demanda';
 import VentasComponent from './components/VentasComponent';
-import Inventario from './components/Inventario';
+import Demand from './components/Demand';
 import Actualizar from './components/ActualizarArticulo';
 import DemandasComponent from './components/Demandas';
 import OrdenCompra from './components/OrdenDeCompra';
@@ -26,7 +26,7 @@ const App = () => {
           <Route path="/demandas" element={<DemandasComponent />} />
           <Route path="/ordenes-de-compra" element={<OrdenCompra />} />
           <Route path="/crear/venta" element={<CrearVenta />} />
-
+          <Route path="/test" element={<Demand/>} />
           <Route path="/ventas" element={<VentasComponent />} />
        </Routes>
     </>

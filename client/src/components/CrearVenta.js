@@ -31,7 +31,11 @@ const CrearVenta = ({ setShowModal, id }) => {
         idArticulo: id,
         fecha: articulo.fecha,
         proveedor: articulo.proveedor,
-        cantidadArticulo: articulo.cantidad
+        cantidadArticulo: articulo.cantidad,
+        año: articulo.fecha.split('-')[0],
+        mes: articulo.fecha.split('-')[1],
+        dia: articulo.fecha.split('-')[2]
+
       };
       console.log(body)
       await axios.post('http://localhost:8080/crear/venta', body);
@@ -43,10 +47,11 @@ const CrearVenta = ({ setShowModal, id }) => {
   };
 
   const handleChange = (e) => {
+    console.log(e.target)
     const { name, value } = e.target;
     setArticulo({ ...articulo, [name]: value });
   };
-
+  
   return (
     <div className="container mt-4">
       <div className="modal fade show" tabIndex="-1" role="dialog" style={{ display: 'block' }}>
@@ -65,7 +70,7 @@ const CrearVenta = ({ setShowModal, id }) => {
                   <input
                     type="date"
                     className="form-control"
-                    id="fecha"
+                    name="fecha"
                     onChange={handleChange}
                     required
                   />
