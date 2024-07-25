@@ -6,7 +6,6 @@ export default function Card({
 	  toggleUpdate,
     toggleProveedor,
 	  setIdArticulo,
-	  createAutoOrder,
 	  newSale,
 }) {
   const [show, setShow] = useState(false);
@@ -26,7 +25,15 @@ export default function Card({
     <div className="card m-2 rounded-lg shadow-lg border border-gray-300">
       <div className="card-body d-flex flex-column p-3 bg-gray-100 rounded-top cursor-pointer" onClick={() => setShow(!show)}>
         <div className="d-flex align-items-center justify-content-between mb-2">
+        {articulo.fechaBaja != null ? (
+          <div>
+          <h4 className="card-title fs-5 fw-semibold  text-danger mb-0">{articulo.nombre}</h4>
+          <p className="text-danger">(Dado de baja)</p>
+          </div>
+        ) : (
           <h4 className="card-title fs-5 fw-semibold mb-0">{articulo.nombre}</h4>
+
+        )}
           </div>
           <div>
           <p className="card-title">{articulo.descripcion}</p>
@@ -59,15 +66,6 @@ export default function Card({
             }}
           >
             Cargar venta
-          </button>
-          <button
-            className="btn btn-link text-decoration-none text-primary"
-            onClick={(e) => {
-              e.stopPropagation();
-              createAutoOrder(articulo.id);
-            }}
-          >
-            Crear orden de Compra
           </button>
           <button
             className="btn btn-link text-decoration-none text-primary"

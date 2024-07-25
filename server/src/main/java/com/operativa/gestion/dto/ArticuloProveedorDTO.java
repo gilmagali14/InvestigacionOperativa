@@ -10,6 +10,7 @@ public class ArticuloProveedorDTO {
     private Long articulo;
     private Double loteOptimo;
     private Double puntoPedido;
+    private Double cgi;
 
     public Double getPuntoPedido() {
         return puntoPedido;
@@ -75,8 +76,16 @@ public class ArticuloProveedorDTO {
         this.stockSeguridad = stockSeguridad;
     }
 
+    public Double getCgi() {
+        return cgi;
+    }
+
+    public void setCgi(Double cgi) {
+        this.cgi = cgi;
+    }
+
     public ArticuloProveedorDTO(int tiempoEntrega, Double costoPedido, String proveedor, String modelo,
-                                Double stockSeguridad, Double loteOptimo, Double puntoPedido) {
+                                Double stockSeguridad, Double loteOptimo, Double puntoPedido, Double cgi) {
         this.tiempoEntrega = tiempoEntrega;
         this.costoPedido = costoPedido;
         this.proveedor = proveedor;
@@ -84,5 +93,6 @@ public class ArticuloProveedorDTO {
         this.stockSeguridad = stockSeguridad;
         this.loteOptimo = loteOptimo;
         this.puntoPedido = puntoPedido;
+        this.cgi = cgi;
     }
 }

@@ -1,0 +1,33 @@
+.link-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+    border-radius: 8px;
+    color: #333;
+    text-decoration: none;
+    height: 150px;
+    width: 100%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.link-box:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.icon-text {
+    margin-bottom: 10px;
+    font-size: 17px;
+}
+
+.pastel-blue {
+    background-color: #CECECE;
+}
+
+.icon-size {
+    font-size: 25px; /* Ajusta el tamaño según sea necesario */
+  }

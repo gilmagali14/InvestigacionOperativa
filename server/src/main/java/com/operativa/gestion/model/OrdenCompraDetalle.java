@@ -14,8 +14,8 @@ public class OrdenCompraDetalle {
     private OrdenDeCompra ordenDeCompra;
 
     @ManyToOne
-    @JoinColumn(name = "articulo_id")
-    private Articulo articulo;
+    @JoinColumn(name = "idArticuloProveedor")
+    private ArticuloProveedor articuloProveedor;
 
     private int cantidad;
 
@@ -35,14 +35,16 @@ public class OrdenCompraDetalle {
         this.ordenDeCompra = ordenDeCompra;
     }
 
-    public Articulo getArticulo() { return articulo; }
-
-    public void setArticulo(Articulo articulo) {
-        this.articulo = articulo;
-    }
-
     public OrdenDeCompra getOrdenDeCompra() {
         return ordenDeCompra;
+    }
+
+    public ArticuloProveedor getArticuloProveedor() {
+        return articuloProveedor;
+    }
+
+    public void setArticuloProveedor(ArticuloProveedor articuloProveedor) {
+        this.articuloProveedor = articuloProveedor;
     }
 
     public int getCantidad() {
@@ -53,9 +55,9 @@ public class OrdenCompraDetalle {
         this.cantidad = cantidad;
     }
 
-    public OrdenCompraDetalle(OrdenDeCompra ordenDeCompra, Articulo articulo, int cantidad) {
+    public OrdenCompraDetalle(OrdenDeCompra ordenDeCompra, ArticuloProveedor articuloProveedor, int cantidad) {
         this.ordenDeCompra = ordenDeCompra;
-        this.articulo = articulo;
+        this.articuloProveedor = articuloProveedor;
         this.cantidad = cantidad;
     }
 }

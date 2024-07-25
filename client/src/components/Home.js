@@ -1,93 +1,71 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { AiFillProduct } from "react-icons/ai";
+import { MdInventory } from "react-icons/md";
+import { MdOutlineBorderColor } from "react-icons/md";
+import { FaUser } from "react-icons/fa";
+import { IoCalculator } from "react-icons/io5";
+import '../Home.css'; 
 
 function Home() {
     return (
-        <div className="">
-        <div className="container">
-            <div className="row">
-                <div className="col">
-                    <h1 className="mt-5">Bienvenido</h1>
-                </div>
-            </div>
-            <div className="row m-4">
-                <div className="col">
-                    <div className="list-group bg-success">
-                        <div className="list-group-item bg-light">
-                            <i className="bi bi-plus-circle me-2"></i> Maestro de Artículos
-                            <ul className="list-group mt-2">
-                                <li className="list-group-item list-group-item-action">
-                                    <Link to="/crear/articulo" className="text-decoration-none text-dark">
-                                    <i className="bi bi-calculator me-2"></i> Crear Articulo
-                                    </Link>
-                                </li>
-                                <li className="list-group-item list-group-item-action">
-                                    <Link to="/actualizar/articulo" className="text-decoration-none text-dark">
-                                        Actualizar Existente
-                                    </Link>
-                                </li>
-                                <li className="list-group-item list-group-item-action">  
-                                <Link to="/articulos" className="text-decoration-none text-dark">
-                                Ver Artículos
-                                </Link>
-                                </li>
-                            </ul>
-                        </div>
-                        <div className="list-group-item list-group-item-action bg-light">
-                            <i className="bi bi-plus-circle me-2"></i> Inventario
-                            <ul className="list-group mt-2">
-                                <li className="list-group-item list-group-item-action">
-                                    <Link to="/inventario" className="text-decoration-none text-dark">
-                                     Ver Inventario
-                                      </Link>
-                                </li>
-                            </ul>
-                        </div>
-                        
-                        <div className="list-group-item list-group-item-action bg-light">
-                            <i className="bi bi-plus-circle me-2"></i> Ordenes de Compra
-                            <ul className="list-group mt-2">
-                                <li className="list-group-item list-group-item-action">
-                                    <Link to="/ordenes-de-compra" className="text-decoration-none text-dark">
-                                     Ver Ordenes
-                                      </Link>
-                                </li>
-                                
-                            </ul>
-                        </div>
-                        <div className="list-group-item list-group-item-action bg-light">
-                            <i className="bi bi-plus-circle me-2"></i> Demanda
-                            <ul className="list-group mt-2">
-                                <li className="list-group-item list-group-item-action">
-                                    <Link to="/demandas" className="text-decoration-none text-dark">
-                                    Ver Demandas Historicas
-                                      </Link>
-                                </li>
-                            <Link to="/demanda" className="list-group-item list-group-item-action">
-                            Calcular demanda
-                            </Link>
-                            </ul>
-                        </div>
-                        <div className="list-group-item list-group-item-action bg-light">
-                            <i className="bi bi-plus-circle me-2"></i> Ventas
-                            <ul className="list-group mt-2">
-                                <li className="list-group-item list-group-item-action">
-                                <Link to="/crear/venta" className="text-decoration-none text-dark">
-                            Cargar Venta
-                            </Link>
-                             
-                                </li>
-                            </ul>
-                        </div>
-                      
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div className="d-flex flex-column min-vh-100">
 
+        <header className="bg-primary text-white p-3">
+        <div className="container d-flex justify-content-between align-items-center">
+        <FaUser />
+          <h4 className="h3 mb-0">Bienvenido</h4>
+          <nav>
+            <ul className="nav">
+              <li className="nav-item">
+                <Link to="/" className="nav-link text-white">Inicio</Link>
+              </li>
+            </ul>
+          </nav>
         </div>
-    );
+      </header>
+    <div className='container bg-light rounded'>
+            <div className="row">
+                <div className="col m-4">
+                    <Link to="/articulos" className="link-box pastel-blue">
+                        <div className="icon-text">
+                            <i className="bi bi-calculator me-2"></i><b>Maestro Artículo</b>
+                        </div>
+                        <AiFillProduct className="icon-size"/>
+                    </Link>
+                </div>
+                <div className="col m-4">
+                <Link to="/demanda" className="link-box pastel-blue">
+                        <div className="icon-text">
+                            <i className="bi bi-calculator me-2"></i> <b>Predicción de Demanda</b>
+                        </div>
+                        <IoCalculator className='icon-size'/>
+                    </Link>
+                </div>
+            </div>
+            <div className="row">
+                <div className="col m-4">
+                    <Link to="/ordenes-de-compra" className="link-box pastel-blue">
+                        <div className="icon-text">
+                            <i className="bi bi-calculator me-2"></i> <b>Ordenes de Compra</b>
+                        </div>
+                        <MdOutlineBorderColor className="icon-size"/>
+                    </Link>
+                </div>
+                <div className="col m-4">
+                    <Link to="/inventario" className="link-box pastel-blue">
+                        <div className="icon-text">
+                            <i className="bi bi-calculator me-2"></i> <b>Inventario</b>
+                        </div>
+                        <MdInventory className="icon-size"/>
+                    </Link>
+                </div>
+            </div>
+            </div>
+            </div>
+
+);
 }
 
 export default Home;

@@ -28,10 +28,10 @@ public class Articulo {
     private TipoArticulo tipoArticulo;
 
     @OneToMany(mappedBy = "articulo", cascade = CascadeType.ALL)
-    private List<OrdenCompraDetalle> ordenesCompraDetalle;
-
-    @OneToMany(mappedBy = "articulo", cascade = CascadeType.ALL)
     private List<ArticuloVenta> articuloVentas;
+
+    @OneToMany(mappedBy = "articulo")
+    private List<ArticuloProveedor> articuloProveedor;
 
     public Articulo(String nombre, String descripcion, Double precio, Integer tasaRotacion, TipoArticulo tipoArticulo,
                     int stock) {
@@ -42,6 +42,7 @@ public class Articulo {
         this.tipoArticulo = tipoArticulo;
         this.stock = stock;
     }
+
 
     public int getStock() {
         return stock;
@@ -117,10 +118,6 @@ public class Articulo {
 
     public void setTipoArticulo(TipoArticulo tipoArticulo) {
         this.tipoArticulo = tipoArticulo;
-    }
-
-    public void setOrdenesCompraDetalle(List<OrdenCompraDetalle> ordenesCompraDetalle) {
-        this.ordenesCompraDetalle = ordenesCompraDetalle;
     }
 
     public void setArticuloVentas(List<ArticuloVenta> articuloVentas) {

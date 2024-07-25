@@ -8,14 +8,12 @@ import java.math.BigDecimal;
 public class Venta {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long codVenta;
 
     private Double montoTotal;
 
     public Long getCodVenta() {return codVenta;}
-
-    public void setCodVenta(Long codVenta) {this.codVenta = codVenta;}
 
     public Double getMontoTotal() {
         return montoTotal;

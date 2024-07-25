@@ -5,19 +5,43 @@ import { toast } from 'react-toastify';
 
 const ActualizarArticulo = ({ toggleUpdate, id }) => {
   const [tipoArticulos, setTipoArticulos] = useState([]);
+  const [proveedores, setProveedores] = useState([]);
   const [articulo, setArticulo] = useState({
     nombre: '',
     precio: 0,
     descripcion: '',
     nombreTipoArticulo: '',
     stock: 0,
-    tasaRotacion: ''
+    tasaRotacion: '',
+    proveedor: ''
   });
 
   useEffect(() => {
-    obtenerTipoArticulos();
+    const fetchData = async () => {
+      try {
+        await obtenerTipoArticulos();
+        await obtenerProveedores();
+        await fetchArticulo();
+      } catch (error) {
+        console.error('Error en la carga de datos:', error);
+      }
+    };
+
     fetchData();
-  }, []);
+  }, [id]); 
+
+  const obtenerProveedores = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/articulo/proveedores/${id}`);
+      if (response.data.length === 0) {
+        toast.warn('Debe asociar un proveedor');
+      } else {
+        setProveedores(response.data);
+      }
+    } catch (error) {
+      console.error('Error al obtener proveedores:', error);
+    }
+  };
 
   const obtenerTipoArticulos = async () => {
     try {
@@ -28,7 +52,7 @@ const ActualizarArticulo = ({ toggleUpdate, id }) => {
     }
   };
 
-  const fetchData = async () => {
+  const fetchArticulo = async () => {
     try {
       const response = await fetch(`http://localhost:8080/articulo/${id}`);
       const data = await response.json();
@@ -38,7 +62,8 @@ const ActualizarArticulo = ({ toggleUpdate, id }) => {
         descripcion: data.descripcion,
         nombreTipoArticulo: data.tipoArticulo.nombre,
         stock: data.stock,
-        tasa: data.tasaRotacion
+        tasaRotacion: data.tasaRotacion,
+        proveedor: data.proveedor || ''
       });
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -55,11 +80,12 @@ const ActualizarArticulo = ({ toggleUpdate, id }) => {
         nombreTipoArticulo: articulo.nombreTipoArticulo,
         precio: articulo.precio,
         stock: articulo.stock,
-        tasaRotacion: articulo.tasaRotacion
+        tasaRotacion: articulo.tasaRotacion,
+        proveedor: articulo.proveedor
       };
-
-      const response = await axios.put('http://localhost:8080/actualizar/articulo', body);
-      toast.success('Articulo actualizado exitosamente');
+        
+      await axios.put('http://localhost:8080/actualizar/articulo', body);
+      toast.success('Artículo actualizado exitosamente');
       toggleUpdate(false);
     } catch (error) {
       console.error('Error al actualizar el artículo:', error);
@@ -98,8 +124,9 @@ const ActualizarArticulo = ({ toggleUpdate, id }) => {
                     </div>
                     <div className="col-md-6">
                       <label htmlFor="precio" className="form-label">Precio</label>
-                      <input
+                         <input
                         type="number"
+                        min="0"
                         className="form-control"
                         id="precio"
                         name="precio"
@@ -143,8 +170,9 @@ const ActualizarArticulo = ({ toggleUpdate, id }) => {
                   <div className="row mb-3">
                     <div className="col-md-6">
                       <label htmlFor="stock" className="form-label">Stock</label>
-                      <input
+                         <input
                         type="number"
+                        min="0"
                         className="form-control"
                         id="stock"
                         name="stock"
@@ -154,16 +182,37 @@ const ActualizarArticulo = ({ toggleUpdate, id }) => {
                       />
                     </div>
                     <div className="col-md-6">
-                      <label htmlFor="tasa" className="form-label">Tasa de Rotacion</label>
-                      <input
+                      <label htmlFor="tasaRotacion" className="form-label">Tasa de Rotacion</label>
+                         <input
                         type="number"
+                        min="0"
                         className="form-control"
-                        id="tasa"
-                        name="tasa"
+                        id="tasaRotacion"
+                        name="tasaRotacion"
                         value={articulo.tasaRotacion}
                         onChange={handleChange}
                         required
                       />
+                    </div>
+                    <div className="row mb-3">
+                      <div className="col-md-6">
+                        <label htmlFor="proveedor" className="form-label">Proveedor</label>
+                        <select
+                          className="form-select"
+                          id="proveedor"
+                          name="proveedor"
+                          value={articulo.proveedor}
+                          onChange={handleChange}
+                          required
+                        >
+                          <option value="">Seleccionar Proveedor</option>
+                          {proveedores.map((proveedor) => (
+                            <option key={proveedor.nombre} value={proveedor.nombre}>
+                              {proveedor.nombre}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
                   </div>
                   <div className="row">

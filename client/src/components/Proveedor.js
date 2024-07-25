@@ -68,8 +68,9 @@ const AddArticuloProveedor = ({ toggleProveedor, id }) => {
                   </div>
                   <div className="col-md-6">
                       <label htmlFor="tiempoEntrega" className="form-label">Tiempo de entrega</label>
-                      <input
+                         <input
                         type="number"
+                        min="0"
                         className="form-control"
                         id="tiempoEntrega"
                         name="tiempoEntrega"
@@ -93,8 +94,9 @@ const AddArticuloProveedor = ({ toggleProveedor, id }) => {
                   </div>
                     <div className="col-md-6">
                       <label htmlFor="costoPedido" className="form-label">Costo de pedido</label>
-                      <input
+                         <input
                         type="number"
+                        min="0"
                         className="form-control"
                         id="costoPedido"
                         name="costoPedido"

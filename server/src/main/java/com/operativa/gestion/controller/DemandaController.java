@@ -1,48 +1,54 @@
 package com.operativa.gestion.controller;
 
-import com.operativa.gestion.dto.DemandaDto;
-import com.operativa.gestion.dto.LoteOptimoDTO;
-import com.operativa.gestion.model.Demanda;
+import com.operativa.gestion.dto.*;
 import com.operativa.gestion.service.DemandaService;
-import org.apache.coyote.BadRequestException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @Controller
 public class DemandaController {
 
-    private final DemandaService demandaService;
+    @Autowired
+    DemandaService demandaService;
 
-  public DemandaController(DemandaService demandaService) {
-        this.demandaService = demandaService;
+    @GetMapping("/demanda-historica/{id}")
+    public ResponseEntity<Integer> obtenerDemandas(@PathVariable Long id) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(demandaService.getDemandaHistoricaPorId(id));
     }
 
-      /*
-    @PostMapping("/calcular-demanda")
-    public ResponseEntity<BigDecimal> calcularDemanda(@RequestBody DemandaDto demanda) {
-       // return ResponseEntity.status(HttpStatus.CREATED).body("");
-    }*/
-
-    @PostMapping("/validar-stock/{id}")
-    public ResponseEntity<String> validarStock(@PathVariable("id") long idArticulo) throws BadRequestException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(demandaService.validarStock(idArticulo));
+    @PostMapping("/demanda-historica")
+    public ResponseEntity<List<VentaPeriodoDTO>> obtenerDemandaPorPeriodo(@RequestBody HistoricoDemandaDTO historicoDemandaDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(demandaService.getDemandaHistoricaPeriodo(historicoDemandaDTO));
     }
 
-    @GetMapping("/demandas")
-    public ResponseEntity<List<Demanda>> obtenerDemandas() {
-        return ResponseEntity.status(HttpStatus.CREATED).body(demandaService.obtenerDemandas());
+    @PostMapping(path = "/promedio-movil")
+    public ResponseEntity<ResultadoDemandaDTO> getPromedioMovil(@RequestBody PromedioMovilDTO dto) {
+        return ResponseEntity.ok(demandaService.getPredictionPM(dto));
     }
 
-    @GetMapping("/calcular-error")
-    public ResponseEntity<List<Map<String, Double>>> calcularError() {
-        return ResponseEntity.status(HttpStatus.CREATED).body(demandaService.calcularError());
+    @PostMapping(path = "/promedio-movil-ponderado")
+    public ResponseEntity<ResultadoDemandaDTO> getPromedioMovilPonderado(@RequestBody PromedioMovilPonderadoDTO dto) {
+        return ResponseEntity.ok(demandaService.getPredictionPMP(dto));
     }
 
+    @PostMapping(path = "/promedio-movil-ponderado-exp")
+    public ResponseEntity<ResultadoDemandaDTO> getPromedioMovilPonderadoExp(@RequestBody PromedioMovilPExpoDTO dto) {
+        return ResponseEntity.ok(demandaService.getPredictionPMPE(dto));
+    }
+
+    @PostMapping(path = "/regresion-lineal")
+    public ResponseEntity<ResultadoDemandaDTO> getPromedioMovilPonderadoExp(@RequestBody RegresionLinealDTO dto) {
+        return ResponseEntity.ok(demandaService.getPredictionRL(dto));
+    }
+
+    @PostMapping(path = "/mejor-metodo")
+    public ResponseEntity<String> getMejorMetodo(@RequestBody DemandasDTO dto) {
+        return ResponseEntity.ok(demandaService.getMejorMetodo(dto));
+    }
 }

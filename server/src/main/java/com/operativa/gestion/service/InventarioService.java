@@ -1,41 +1,31 @@
 package com.operativa.gestion.service;
 
 import com.operativa.gestion.model.*;
-import com.operativa.gestion.model.repository.HistoricoDemandaRepository;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.List;
 
 @Service
 public class InventarioService {
 
-    private final HistoricoDemandaRepository historicoDemandaRepository;
+    private final DemandaService demandaService;
 
-    public InventarioService(HistoricoDemandaRepository historicoDemandaRepository) {
-        this.historicoDemandaRepository = historicoDemandaRepository;
+    public InventarioService(DemandaService demandaService) {
+        this.demandaService = demandaService;
     }
 
     public Boolean menorQuePuntoPedido(int stock, double puntoPedido) {
         return stock <= puntoPedido;
     }
+
     public ArticuloProveedor updateArticuloInventario(ArticuloProveedor articuloProveedor) {
-        int demandaAnual = getDemandaHistorica(articuloProveedor.getArticulo());
+        int demandaAnual = demandaService.getDemandaHistoricaPorArticulo(articuloProveedor.getArticulo());
         articuloProveedor.setLoteOptimo(calcularLoteOptimo(articuloProveedor.getArticulo(), articuloProveedor.getCostoPedido(),
                 articuloProveedor.getModelo(), demandaAnual));
         articuloProveedor.setPuntoPedido(calcularPuntoPedido(articuloProveedor.getCostoPedido(), articuloProveedor.getModelo(),
                 articuloProveedor.getTiempoEntrega(), demandaAnual));
         articuloProveedor.setStockSeguridad(calcularStockSeguridad(articuloProveedor.getArticulo(), articuloProveedor.getTiempoEntrega()));
+        articuloProveedor.setCgi(calcularCgi(articuloProveedor.getArticulo(), articuloProveedor.getTiempoEntrega(),
+                articuloProveedor.getModelo(), demandaAnual));
         return articuloProveedor;
-    }
-
-    private int getDemandaHistorica(Articulo articulo) {
-        List<HistoricoDemanda> list = historicoDemandaRepository.findHistoricoDemandaByArticuloAndAño(articulo, LocalDate.now().getYear());
-        int sum = 0;
-        for (HistoricoDemanda historicoDemanda : list) {
-            sum += historicoDemanda.getCantidad();
-        }
-        return sum;
     }
 
     public double calcularLoteOptimo(Articulo articulo, double costoPedido, String modelo, int demandaAnual) {
@@ -47,7 +37,7 @@ public class InventarioService {
                 loteOptimo = (int)Math.ceil(Math.sqrt(2*demandaAnual*costo));
                 break;
             case "intervalo-fijo":
-                loteOptimo = articulo.getStock();
+                loteOptimo = (int)Math.ceil(Math.sqrt(2*demandaAnual*costo));
                 break;
         }
         return loteOptimo > 0 ? loteOptimo : 0;
@@ -73,14 +63,14 @@ public class InventarioService {
         double loteOptimo = calcularLoteOptimo(articulo, costoPedido, modelo, demandaAnual);
         double purchaseCost = articulo.getPrecio() * loteOptimo;
         double costoAlmacenamiento = articulo.getPrecio() * articulo.getTasaRotacion();
-        double storageCost =  costoAlmacenamiento* (loteOptimo / 2) ;
+        double storageCost =  costoAlmacenamiento * (loteOptimo / 2) ;
         double orderCost = costoPedido * (demandaAnual / loteOptimo);
         double cgi = purchaseCost + storageCost + orderCost;
         return cgi > 0 ? cgi : 0;
     }
 
     public Double calcularStockSeguridad(Articulo articulo, int tiempoEntrega) {
-        int demandaAnual = getDemandaHistorica(articulo);
+        int demandaAnual = demandaService.getDemandaHistoricaPorArticulo(articulo);
         double demandaDiaria = demandaAnual / 245.0;
         double desviacionEstandar = demandaDiaria * 0.05;
         double z = 1.64;

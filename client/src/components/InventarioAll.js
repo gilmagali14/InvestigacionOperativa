@@ -4,11 +4,13 @@ import SearchBar from './SearchBar';
 import { toast } from 'react-toastify';
 import { BiLastPage } from "react-icons/bi";
 import { MdOutlineFirstPage } from "react-icons/md";
+import { Link } from 'react-router-dom';
+import { FaUser } from "react-icons/fa";
 
 const Articulos = () => {
-  const [articulo, setArticulos] = useState([]);
+  const [articulos, setArticulos] = useState([]);
   const [search, setSearch] = useState('');
-  const [filteredArticle, setFilteredArticle] = useState([]);
+  const [filteredArticles, setFilteredArticles] = useState([]);
   const [filter, setFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
   const [activeAccordion, setActiveAccordion] = useState(null);
@@ -21,6 +23,7 @@ const Articulos = () => {
   const fetchData = async () => {
     try {
       const response = await axios.get('http://localhost:8080/articulos/proveedores');
+      console.log(response.data)
       setArticulos(response.data);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -28,7 +31,72 @@ const Articulos = () => {
     }
   };
 
-  const totalPages = Math.ceil(filteredArticle.length / quantityPerPage);
+  const filterByStock = async (articles) => {
+    console.log(filter)
+    if (filter === 'reponer') {
+      try {
+
+        const response = await axios.get('http://localhost:8080/articulos-a-reponer');
+        console.log(response.data)
+
+        return response.data;
+      } catch (error) {
+        toast.error('Error fetching data');
+        return [];
+      }
+    }
+
+    if (filter === 'faltantes') {
+      console.log(articles);
+      return articles.filter(art =>
+      
+        art.articuloProveedor && art.articuloProveedor.some(prov => art.stock < prov.stockSeguridad)
+      );
+    }
+
+    if (filter === 'intervaloFijo') {
+      return articles.filter(art =>
+        art.articuloProveedor && art.articuloProveedor.some(prov => prov.modelo === 'intervalo-fijo')
+      );
+    }
+    if (filter === 'loteFijo') {
+      return articles.filter(art =>
+        art.articuloProveedor && art.articuloProveedor.some(prov => prov.modelo === 'lote-fijo')
+      );
+    }
+    return articles;
+  };
+
+  useEffect(() => {
+    const fetchDataAndFilter = async () => {
+      await fetchData();
+    };
+
+    fetchDataAndFilter();
+  }, []);
+
+  useEffect(() => {
+    const applyFiltersAndSearch = async () => {
+      let filtered = articulos;
+
+      if (filter) {
+        filtered = await filterByStock(filtered);
+      }
+
+      if (search) {
+        filtered = filtered.filter(art =>
+          art.nombreArticulo.toLowerCase().includes(search.toLowerCase())
+        );
+      }
+
+      setFilteredArticles(filtered);
+      setCurrentPage(0); 
+    };
+
+    applyFiltersAndSearch();
+  }, [search, filter, articulos]);
+
+  const totalPages = Math.ceil(filteredArticles.length / quantityPerPage);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -36,111 +104,65 @@ const Articulos = () => {
 
   const getPaginationButtons = () => {
     const buttons = [];
-    let startPage = currentPage;
+    let startPage = Math.max(currentPage - 2, 0);
+    let endPage = Math.min(startPage + 4, totalPages - 1);
 
-    if (currentPage + 4 > totalPages) {
-      startPage = totalPages - 4;
+    if (endPage - startPage < 4) {
+      startPage = Math.max(endPage - 4, 0);
     }
 
-    startPage = Math.max(startPage, 0);
-
-    for (let i = 0; i < totalPages; i++) {
-      const pageNumber = startPage + i + 1;
+    for (let i = startPage; i <= endPage; i++) {
       buttons.push(
         <button
           key={i}
-          className={`btn btn-sm mx-1 ${
-            currentPage === pageNumber - 1 ? 'btn-primary' : 'btn-secondary'
-          }`}
-          onClick={() => handlePageChange(pageNumber - 1)}
-          disabled={pageNumber > totalPages}
+          className={`btn btn-sm mx-1 ${currentPage === i ? 'btn-primary' : 'btn-secondary'}`}
+          onClick={() => handlePageChange(i)}
         >
-          {pageNumber}
+          {i + 1}
         </button>
       );
     }
     return buttons;
   };
 
-  const filterByStock = async (articles) => {
-    if (filter === 'reponer') {
-      try {
-        const data = await fetchReponer();
-        return data;
-      } catch (error) {
-        toast.error('Error fetching data');
-        return [];
-      }
-    }
-    if (filter === 'faltantes') {
-      return articles.filter(art =>
-        art.articuloProveedor && art.articuloProveedor.some(prov => art.stock < prov.stockSeguridad)
-      );
-    }
-    return articles;
-  };
-
-  const fetchReponer = async () => {
-    try {
-      const response = await axios.get('http://localhost:8080/articulos-a-reponer');
-      return response.data;
-    } catch (error) {
-      throw new Error('Error fetching data');
-    }
-  };
-
-  useEffect(() => {
-    const fetchDataAndFilter = async () => {
-      await fetchData();
-      let filteredArticles = articulo;
-
-      if (filter !== '') {
-        filteredArticles = await filterByStock(articulo);
-      }
-
-      setFilteredArticle(filteredArticles);
-    };
-
-    fetchDataAndFilter();
-  }, [filter, articulo]);
-
-  useEffect(() => {
-    const searchFilteredArticles = () => {
-      const filtered = articulo.filter(art =>
-        art.nombreArticulo.toLowerCase().includes(search.toLowerCase())
-      );
-      filterByStock(filtered).then(filtered => setFilteredArticle(filtered));
-    };
-
-    if (search !== '') {
-      searchFilteredArticles();
-    } else {
-      filterByStock(articulo).then(filtered => setFilteredArticle(filtered));
-    }
-  }, [search, articulo]);
+  const currentArticles = filteredArticles.slice(currentPage * quantityPerPage, (currentPage + 1) * quantityPerPage);
 
   return (
-    <div className="container">
+    <div>
+    <header className="bg-primary text-white p-3">
+      <div className="container d-flex justify-content-between align-items-center">
+      <FaUser />
+        <h4 className="h3 mb-0">Inventario</h4>
+        <nav>
+          <ul className="nav">
+            <li className="nav-item">
+              <Link to="/" className="nav-link text-white">Inicio</Link>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <div className="container mt-5">
       <div style={{ height: '80px' }}>
-        <div className="col-12 col-md-6">
-          <h1 className="text-center display-4 font-weight-bold mb-4">Artículos</h1>
-        </div>
         <div className="d-flex align-items-center justify-content-end">
           <SearchBar setSearch={setSearch} />
           <div className="form-group d-flex flex-grow-1 ml-2">
             <select
               className="form-control m-1"
               onChange={(e) => setFilter(e.target.value)}
+              value={filter}
             >
-              <option className="m-1" value="">Filtrar</option>
-              <option className="m-1 p-3" value="reponer">Articulos a reponer</option>
-              <option className="m-1 p-3" value="tipos">Tipo de articulo</option>
-              <option className="m-1 p-3" value="faltantes">Articulos faltantes</option>
+              <option className='p-2' value="">Filtrar</option>
+              <option className='p-2' value="reponer">Articulos a reponer</option>
+              <option className='p-2' value="faltantes">Articulos faltantes</option>
+              <option className='p-2' value="intervaloFijo">Intervalo fijo</option>
+              <option className='p-2' value="loteFijo">Lote fijo</option>
+
             </select>
           </div>
         </div>
         <div className='container mt-5'>
-          {filteredArticle.map((art, index) => (
+          {currentArticles.map((art, index) => (
             <div id={`accordion-${index}`} key={index}>
               <div className="card">
                 <div
@@ -171,6 +193,7 @@ const Articulos = () => {
                             <div key={subIndex}>
                               <li className="list-group-item">
                                 <p><b>Proveedor:</b> {a.proveedor}</p>
+                                {a.modelo == 'lote-fijo' ? (
                                 <table className="table table-striped">
                                   <thead>
                                     <tr>
@@ -180,6 +203,8 @@ const Articulos = () => {
                                       <th scope="col" className="text-center">Stock de seguridad</th>
                                       <th scope="col" className="text-center">Lote optimo</th>
                                       <th scope="col" className="text-center">Punto de pedido</th>
+                                      <th scope="col" className="text-center">CGI</th>
+
                                     </tr>
                                   </thead>
                                   <tbody>
@@ -190,9 +215,38 @@ const Articulos = () => {
                                       <td className="text-center">{a.stockSeguridad}</td>
                                       <td className="text-center">{a.loteOptimo}</td>
                                       <td className="text-center">{a.puntoPedido}</td>
+                                      <td className="text-center">{a.cgi}</td>
+
                                     </tr>
                                   </tbody>
                                 </table>
+                                ) : (
+                                  <table className="table table-striped">
+                                  <thead>
+                                    <tr>
+                                      <th scope="col" className="text-center">Tiempo de entrega</th>
+                                      <th scope="col" className="text-center">Costo de pedido</th>
+                                      <th scope="col" className="text-center">Modelo</th>
+                                      <th scope="col" className="text-center">Stock de seguridad</th>
+                                      <th scope="col" className="text-center">Lote optimo</th>
+                                      <th scope="col" className="text-center">CGI</th>
+
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>
+                                      <td className="text-center">{a.tiempoEntrega}</td>
+                                      <td className="text-center">{a.costoPedido}</td>
+                                      <td className="text-center">{a.modelo}</td>
+                                      <td className="text-center">{a.stockSeguridad}</td>
+                                      <td className="text-center">{a.loteOptimo}</td>
+                                      <td className="text-center">{a.cgi}</td>
+
+                                    </tr>
+                                  </tbody>
+                                </table>
+                                )
+                              }
                               </li>
                             </div>
                           ))}
@@ -209,25 +263,19 @@ const Articulos = () => {
         </div>
         <div className='m-3 d-flex align-items-center justify-content-center'>
           <MdOutlineFirstPage
-            className={`w-6 h-6 ${
-              currentPage === 0 ? 'text-gray-300' : 'text-black cursor-pointer hover:text-black'
-            }`}
+            className={`w-6 h-6 ${currentPage === 0 ? 'text-gray-300' : 'text-black cursor-pointer hover:text-black'}`}
             onClick={() => currentPage > 0 && handlePageChange(currentPage - 1)}
           />
           {getPaginationButtons()}
           <BiLastPage
-            className={`w-6 h-6 ${
-              currentPage === totalPages - 1
-                ? 'text-gray-300'
-                : 'text-black cursor-pointer hover:text-black'
-            }`}
-            onClick={() =>
-              currentPage < totalPages - 1 && handlePageChange(currentPage + 1)
-            }
+            className={`w-6 h-6 ${currentPage === totalPages - 1 ? 'text-gray-300' : 'text-black cursor-pointer hover:text-black'}`}
+            onClick={() => currentPage < totalPages - 1 && handlePageChange(currentPage + 1)}
           />
         </div>
       </div>
     </div>
+    </div>
+
   );
 };
 

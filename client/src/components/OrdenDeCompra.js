@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import CrearOrdenCompra from './CrearOrdenCompra';
+import { Link } from 'react-router-dom';
+import { FaUser } from "react-icons/fa";
 
 const OrdenesDeCompra = () => {
     const [ordenes, setOrdenes] = useState([]);
     const [estadoSeleccionado, setEstadoSeleccionado] = useState('');
-    const estadosDisponibles = ['PENDIENTE', 'ACEPTADA', 'RECHAZADA']; 
+    const [showCreate, setShowCreate] = useState(false);
+    const estadosDisponibles = ['PENDIENTE', 'ACEPTADA', 'RECHAZADA'];
 
     useEffect(() => {
         const fetchData = async () => {
@@ -16,14 +20,12 @@ const OrdenesDeCompra = () => {
                 console.error('Error fetching data:', error);
             }
         };
-
         fetchData();
     }, []);
 
-    const handleChangeEstado = async (idOrden) => {
+    const handleChangeEstado = async (idOrden, proveedor) => {
         try {
-
-            await axios.put(`http://localhost:8080/orden/${idOrden}/${estadoSeleccionado}`);
+            await axios.put(`http://localhost:8080/orden/${idOrden}/${estadoSeleccionado}/${proveedor}`);
             const updatedOrdenes = ordenes.map(orden => {
                 if (orden.id === idOrden) {
                     return {
@@ -39,16 +41,31 @@ const OrdenesDeCompra = () => {
                 }
                 return orden;
             });
-            toast.success("Orden de compra actualizada correctamente")
+            toast.success("Orden de compra actualizada correctamente");
             setOrdenes(updatedOrdenes);
         } catch (error) {
             console.error('Error updating estado:', error);
         }
     };
 
+    const toggleCreate = () => setShowCreate(prev => !prev);
+
     return (
-        <div className="container mt-4">
-            <h2>Ordenes de Compra</h2>
+        <div>
+        <header className="bg-primary text-white p-3">
+          <div className="container d-flex justify-content-between align-items-center">
+          <FaUser />
+            <h4 className="h3 mb-0">Ordenes de Compra</h4>
+            <nav>
+              <ul className="nav">
+                <li className="nav-item">
+                  <Link to="/" className="nav-link text-white">Inicio</Link>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </header>
+        <div className="container mt-5">
             <table className="table">
                 <thead>
                     <tr>
@@ -57,6 +74,7 @@ const OrdenesDeCompra = () => {
                         <th scope="col">Estado</th>
                         <th scope="col">Artículo</th>
                         <th scope="col">Cantidad</th>
+                        <th scope="col">Proveedor</th>
                         <th scope="col">Cambiar Estado</th>
                     </tr>
                 </thead>
@@ -66,8 +84,9 @@ const OrdenesDeCompra = () => {
                             <th scope="row">{orden.id}</th>
                             <td>{orden.ordenDeCompra.fechaCreacion}</td>
                             <td>{orden.ordenDeCompra.estadoOrdenDeCompra.nombreEstadoOrdenDeCompra}</td>
-                            <td>{orden.articulo.nombre}</td>
+                            <td>{orden.articuloProveedor.articulo.nombre}</td>
                             <td>{orden.cantidad}</td>
+                            <td>{orden.articuloProveedor.proveedor.nombre}</td>
                             <td>
                                 <select
                                     className="form-select"
@@ -85,7 +104,7 @@ const OrdenesDeCompra = () => {
                             <td>
                                 <button
                                     className="btn btn-primary"
-                                    onClick={() => handleChangeEstado(orden.id)}
+                                    onClick={() => handleChangeEstado(orden.id, orden.articuloProveedor.proveedor.nombre)}
                                     disabled={!estadoSeleccionado}
                                 >
                                     Actualizar
@@ -95,6 +114,13 @@ const OrdenesDeCompra = () => {
                     ))}
                 </tbody>
             </table>
+            <div className="fixed-bottom d-flex justify-content-end m-3">
+                <button className="btn btn-primary rounded-pill shadow-sm" onClick={toggleCreate}>
+                    Crear orden de compra
+                </button>
+                {showCreate && <CrearOrdenCompra toggleCreate={toggleCreate} />}
+            </div>
+        </div>
         </div>
     );
 };

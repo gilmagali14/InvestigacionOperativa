@@ -2,6 +2,8 @@ package com.operativa.gestion.model;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 public class ArticuloProveedor {
 
@@ -14,6 +16,18 @@ public class ArticuloProveedor {
     private Double loteOptimo;
     private Double puntoPedido;
     private Double stockSeguridad;
+    private Double cgi;
+
+    @ManyToOne
+    @JoinColumn(name = "idArticulo", nullable = false)
+    private Articulo articulo;
+
+    @ManyToOne
+    @JoinColumn(name = "idProveedor", nullable = false)
+    private Proveedor proveedor;
+
+    @OneToMany(mappedBy = "articuloProveedor", cascade = CascadeType.ALL)
+    private List<OrdenCompraDetalle> ordenesCompraDetalle;
 
     public Long getIdArticuloProveedor() {
         return idArticuloProveedor;
@@ -55,14 +69,6 @@ public class ArticuloProveedor {
         this.stockSeguridad = stockSeguridad;
     }
 
-    @ManyToOne
-    @JoinColumn(name = "idArticulo", nullable = false)
-    private Articulo articulo;
-
-    @ManyToOne
-    @JoinColumn(name = "idProveedor", nullable = false)
-    private Proveedor proveedor;
-
     public ArticuloProveedor(Long idArticuloProveedor, Integer tiempoEntrega, Double costoPedido, String modelo, Double loteOptimo,
                              Double puntoPedido, Double stockSeguridad, Articulo articulo, Proveedor proveedor) {
         this.idArticuloProveedor = idArticuloProveedor;
@@ -98,6 +104,14 @@ public class ArticuloProveedor {
 
     public Double getCostoPedido() {
         return costoPedido;
+    }
+
+    public Double getCgi() {
+        return cgi;
+    }
+
+    public void setCgi(Double cgi) {
+        this.cgi = cgi;
     }
 
     public void setCostoPedido(Double costoPedido) {

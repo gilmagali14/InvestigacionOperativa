@@ -8,7 +8,7 @@ public class VentasDTO {
 
     Venta venta;
     String fechaVenta;
-    Long cantidadArticulos;
+    int cantidadArticulos;
     Articulo articulo;
 
     public Articulo getArticulo() {
@@ -35,15 +35,15 @@ public class VentasDTO {
         this.fechaVenta = fechaVenta;
     }
 
-    public Long getCantidadArticulos() {
+    public int getCantidadArticulos() {
         return cantidadArticulos;
     }
 
-    public void setCantidadArticulos(Long cantidadArticulos) {
+    public void setCantidadArticulos(int cantidadArticulos) {
         this.cantidadArticulos = cantidadArticulos;
     }
 
-    public VentasDTO(Venta venta, String fechaVenta, Long cantidadArticulos) {
+    public VentasDTO(Venta venta, String fechaVenta, int cantidadArticulos) {
         this.venta = venta;
         this.fechaVenta = fechaVenta;
         this.cantidadArticulos = cantidadArticulos;

@@ -9,6 +9,15 @@ public class ArticuloDTO {
     private Double precio;
     private Integer tasaRotacion;
     private int stock;
+    private String proveedor;
+
+    public String getProveedor() {
+        return proveedor;
+    }
+
+    public void setProveedor(String proveedor) {
+        this.proveedor = proveedor;
+    }
 
     public Long getId() {
         return id;

@@ -22,19 +22,17 @@ public class ArticuloService {
     private final ProveedorRepository proveedorRepository;
     private final ArticuloProveedorRepository articuloProveedorRepository;
     private final InventarioService inventarioService;
-    private final OrdenDeCompraRespository ordenDeCompraRespository;
 
     public ArticuloService(OrdenCompraDetalleRepository ordenCompraDetalleRepository, ArticuloRepository articuloRepository,
                            TipoArticuloRespository tipoArticuloRespository,
                            ProveedorRepository proveedorRepository, InventarioService inventarioService,
-                           ArticuloProveedorRepository articuloProveedorRepository, OrdenDeCompraRespository ordenDeCompraRespository) {
+                           ArticuloProveedorRepository articuloProveedorRepository) {
         this.ordenCompraDetalleRepository = ordenCompraDetalleRepository;
         this.articuloRepository = articuloRepository;
         this.tipoArticuloRespository = tipoArticuloRespository;
         this.proveedorRepository = proveedorRepository;
         this.articuloProveedorRepository = articuloProveedorRepository;
         this.inventarioService = inventarioService;
-        this.ordenDeCompraRespository = ordenDeCompraRespository;
     }
 
     public void crearArticulo(ArticuloDTO articuloDTO) throws BadRequestException {
@@ -71,6 +69,7 @@ public class ArticuloService {
         if (articulo.isEmpty()) {
             throw new BadRequestException("El articulo no existe");
         }
+        Proveedor proveedor = proveedorRepository.findByNombre(articuloDTO.getProveedor()).get();
         Optional<TipoArticulo> tipoArticulo = tipoArticuloRespository.findByNombre(articuloDTO.getNombreTipoArticulo());
 
         if (tipoArticulo.isEmpty()) {
@@ -84,6 +83,10 @@ public class ArticuloService {
         art.setTasaRotacion(articuloDTO.getTasaRotacion());
         art.setStock(articuloDTO.getStock());
         articuloRepository.save(art);
+
+        ArticuloProveedor articuloProveedor = articuloProveedorRepository.findByArticuloAndProveedor(art, proveedor).get();
+        articuloProveedor = inventarioService.updateArticuloInventario(articuloProveedor);
+        articuloProveedorRepository.save(articuloProveedor);
     }
 
     public List<Articulo> obtenerArticulos() {
@@ -95,15 +98,17 @@ public class ArticuloService {
     }
 
     public ArticuloProveedor crearArticuloProveedor(ArticuloProveedorDTO articuloProveedorDTO) throws BadRequestException {
-        Articulo articulo = articuloRepository.findById(articuloProveedorDTO.getArticulo()).get();
-        Proveedor proveedor = proveedorRepository.findByNombre(articuloProveedorDTO.getProveedor()).get();
+        Articulo articulo = articuloRepository.findById(articuloProveedorDTO.getArticulo())
+                .orElseThrow(() -> new BadRequestException("Artículo no encontrado"));
 
-        Optional<ArticuloProveedor> art = articuloProveedorRepository.findByArticuloAndProveedor(articulo, proveedor);
+        Proveedor proveedor = proveedorRepository.findByNombre(articuloProveedorDTO.getProveedor())
+                .orElseThrow(() -> new BadRequestException("Proveedor no encontrado"));
 
-        if (art.isPresent()) {
-            throw new BadRequestException("El articulo ya esta asociado a ese proveedor");
+        Optional<ArticuloProveedor> existingRelation = articuloProveedorRepository.findByArticuloAndProveedor(articulo, proveedor);
+
+        if (existingRelation.isPresent()) {
+            throw new BadRequestException("El artículo ya está asociado a ese proveedor");
         }
-        double costoPedido = articuloProveedorDTO.getCostoPedido();
 
         ArticuloProveedor articuloProveedor = new ArticuloProveedor();
         articuloProveedor.setTiempoEntrega(articuloProveedorDTO.getTiempoEntrega());
@@ -111,49 +116,60 @@ public class ArticuloService {
         articuloProveedor.setArticulo(articulo);
         articuloProveedor.setProveedor(proveedor);
         articuloProveedor.setModelo(articuloProveedorDTO.getModelo());
-       articuloProveedor = inventarioService.updateArticuloInventario(articuloProveedor);
+
+        articuloProveedor = inventarioService.updateArticuloInventario(articuloProveedor);
+
         articuloProveedorRepository.save(articuloProveedor);
-        articuloRepository.save(articulo);
 
         return articuloProveedor;
     }
 
     public List<ArticulosProveedoresDTO> articuloProveedores() {
         List<Articulo> articulos = articuloRepository.findAll();
-        List<ArticuloProveedorDTO> list = new ArrayList<>();
         List<ArticulosProveedoresDTO> listaFinal = new ArrayList<>();
+
         for (Articulo articulo : articulos) {
             ArticulosProveedoresDTO dtoFinal = new ArticulosProveedoresDTO();
             List<ArticuloProveedor> articuloProveedors = articuloProveedorRepository.findAllByArticulo(articulo);
+            List<ArticuloProveedorDTO> list = new ArrayList<>();
+
             dtoFinal.setNombreArticulo(articulo.getNombre());
             dtoFinal.setDescripcion(articulo.getDescripcion());
             dtoFinal.setStock(articulo.getStock());
             dtoFinal.setPrecio(articulo.getPrecio());
             dtoFinal.setTipoArticulo(articulo.getTipoArticulo().getNombre());
             dtoFinal.setIdArticulo(articulo.getIdArticulo());
+
             if (!articuloProveedors.isEmpty()) {
                 for (ArticuloProveedor articuloProveedor : articuloProveedors) {
-                    list.add(new ArticuloProveedorDTO(articuloProveedor.getTiempoEntrega(),
-                                                      articuloProveedor.getCostoPedido(),
-                                                      articuloProveedor.getProveedor().getNombre(),
-                                                      articuloProveedor.getModelo(),
-                                                      articuloProveedor.getStockSeguridad(),
-                                                      articuloProveedor.getLoteOptimo(),
-                            articuloProveedor.getPuntoPedido()));
+                    list.add(new ArticuloProveedorDTO(
+                            articuloProveedor.getTiempoEntrega(),
+                            articuloProveedor.getCostoPedido(),
+                            articuloProveedor.getProveedor().getNombre(),
+                            articuloProveedor.getModelo(),
+                            articuloProveedor.getStockSeguridad(),
+                            articuloProveedor.getLoteOptimo(),
+                            articuloProveedor.getPuntoPedido(),
+                            articuloProveedor.getCgi()
+                    ));
                 }
                 dtoFinal.setArticuloProveedor(list);
+            } else {
+                dtoFinal.setArticuloProveedor(list);
             }
+
             listaFinal.add(dtoFinal);
         }
         return listaFinal;
     }
+
 
     public List<ArticulosProveedoresDTO> articulosReponer() {
         List<ArticulosProveedoresDTO> articulosReponer = new ArrayList<>();
         List<ArticulosProveedoresDTO> articuloProveedores = articuloProveedores();
         for (ArticulosProveedoresDTO artDto : articuloProveedores) {
             List<OrdenCompraDetalle> ordenDeCompra = ordenCompraDetalleRepository.findByArticuloIdAndStatus(artDto.getIdArticulo());
-            if (!ordenDeCompra.isEmpty()) {
+            if (ordenDeCompra.isEmpty()) {
                 for (ArticuloProveedorDTO articuloProveedorDTO : artDto.getArticuloProveedor()) {
                     if (artDto.getStock() <= articuloProveedorDTO.getPuntoPedido()) {
                         articulosReponer.add(artDto);
